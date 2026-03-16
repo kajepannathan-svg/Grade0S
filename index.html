@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GradeOS — Wilfrid Laurier Study System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Neue+Haas+Grotesk+Display+Pro:wght@400;500&family=Geist+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d14;
+  --ink2:#13131f;
+  --ink3:#1a1a2e;
+  --ink4:#22223a;
+  --ink5:#2e2e4a;
+  --gold:#f0b429;
+  --gold2:#ffd166;
+  --gold3:#ffe8a3;
+  --violet:#6d28d9;
+  --vl:#8b5cf6;
+  --vll:#c4b5fd;
+  --teal:#0d9488;
+  --tl:#2dd4bf;
+  --tll:#99f6e4;
+  --rose:#e11d48;
+  --rl:#fb7185;
+  --rll:#fecdd3;
+  --sky:#0369a1;
+  --sl:#38bdf8;
+  --sll:#bae6fd;
+  --ember:#ea580c;
+  --el:#fb923c;
+  --ell:#fed7aa;
+  --t1:#f0f0fa;
+  --t2:#b0b0d0;
+  --t3:#6060a0;
+  --t4:#3a3a60;
+  --r:12px;--rsm:7px;--rxs:4px;
+}
+
+*::-webkit-scrollbar{width:4px;height:4px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:2px}
+body{font-family:'Syne',sans-serif;background:var(--ink);color:var(--t1);min-height:100vh;overflow-x:hidden}
+
+/* MESH BACKGROUND */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 30%, rgba(109,40,217,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 400px at 85% 20%, rgba(13,148,136,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 400px at 60% 90%, rgba(225,29,72,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 90% 70%, rgba(240,180,41,.07) 0%, transparent 60%);
+}
+
+/* GRAIN */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.03'/%3E%3C/svg%3E");
+  opacity:.6;
+}
+
+.shell{display:flex;min-height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sb{
+  width:256px;flex-shrink:0;
+  background:rgba(13,13,20,.85);
+  border-right:1px solid rgba(109,40,217,.2);
+  backdrop-filter:blur(24px) saturate(180%);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;z-index:100;
+  overflow-y:auto;
+}
+
+.sb-logo{padding:1.5rem 1.25rem 1.1rem;border-bottom:1px solid rgba(109,40,217,.15)}
+.sb-wordmark{font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:var(--t1);letter-spacing:-.5px}
+.sb-sub{font-size:10px;color:var(--t3);margin-top:3px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace}
+
+.sb-wlu{margin:1rem 1.25rem;background:linear-gradient(135deg,rgba(240,180,41,.15),rgba(109,40,217,.1));border:1px solid rgba(240,180,41,.25);border-radius:var(--r);padding:.7rem .9rem;display:flex;align-items:center;gap:10px}
+.sb-wlu-icon{font-size:20px}
+.sb-wlu-text{font-size:11px;line-height:1.4}
+.sb-wlu-name{font-weight:700;color:var(--gold2)}
+.sb-wlu-year{color:var(--t3)}
+
+.sb-sec{padding:.85rem 1.25rem .3rem;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--t4);font-family:'DM Mono',monospace}
+
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:.6rem 1rem;border-radius:var(--rsm);
+  margin:1px .65rem;cursor:pointer;
+  font-size:13px;font-weight:500;color:var(--t3);
+  transition:all .18s;user-select:none;letter-spacing:.01em;
+}
+.sb-item:hover{background:rgba(109,40,217,.12);color:var(--t1)}
+.sb-item.active{
+  background:linear-gradient(90deg,rgba(109,40,217,.25),rgba(13,148,136,.12));
+  color:var(--t1);border-left:2px solid var(--vl);margin-left:.5rem;
+}
+.sb-ico{width:16px;text-align:center;font-size:14px;flex-shrink:0}
+.sb-count{margin-left:auto;font-size:10px;font-family:'DM Mono',monospace;background:rgba(109,40,217,.2);color:var(--vll);border-radius:100px;padding:1px 7px;border:1px solid rgba(109,40,217,.25)}
+
+.sb-gpa-widget{margin:.75rem 1rem .5rem;background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);border-radius:var(--r);padding:.85rem 1rem}
+.sb-gpa-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.45rem;font-family:'DM Mono',monospace}
+.sb-gpa-row{display:flex;align-items:baseline;gap:6px}
+.sb-gpa-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--gold2)}
+.sb-gpa-max{font-size:13px;color:var(--t3)}
+.sb-gpa-bar-wrap{height:4px;background:rgba(255,255,255,.06);border-radius:100px;margin-top:.5rem;overflow:hidden}
+.sb-gpa-bar{height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:100px;transition:width .8s}
+
+.sb-bot{margin-top:auto;padding:.75rem 1rem;border-top:1px solid rgba(109,40,217,.12)}
+.sb-compliance{font-size:11px;color:var(--t3);text-align:center;line-height:1.5}
+.sb-compliance strong{display:block;font-size:18px;font-weight:700;color:var(--tl);font-family:'DM Mono',monospace}
+
+/* ── MAIN ── */
+.main{margin-left:256px;flex:1;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:rgba(13,13,20,.7);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(109,40,217,.15);
+  padding:.9rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:90;flex-wrap:wrap;gap:10px;
+}
+.tb-breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:12px;color:var(--t3)}
+.tb-breadcrumb-cur{font-size:16px;font-weight:700;color:var(--t1)}
+.tb-right{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:100px;padding:.35rem .9rem;font-size:12px;font-weight:600;border:1px solid;cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif}
+.chip-gcal{background:rgba(13,148,136,.12);border-color:rgba(13,148,136,.35);color:var(--tl)}
+.chip-gcal:hover{background:rgba(13,148,136,.2)}
+.chip-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.chip-score{background:rgba(109,40,217,.12);border-color:rgba(109,40,217,.3);color:var(--vll)}
+
+.content{padding:1.75rem 1.5rem}
+
+/* ── PANELS ── */
+.panel{display:none}.panel.active{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:1.75rem}
+.page-title{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;color:var(--t1);line-height:1.1}
+.page-title em{font-style:italic;color:var(--t3)}
+.page-desc{font-size:13px;color:var(--t3);margin-top:.35rem}
+
+/* ── GRID STATS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.stat{border-radius:var(--r);padding:1rem 1.1rem;position:relative;overflow:hidden;border:1px solid}
+.stat::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;filter:blur(25px);opacity:.5}
+.stat.gold{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.2)}.stat.gold::after{background:var(--gold)}
+.stat.violet{background:rgba(109,40,217,.08);border-color:rgba(109,40,217,.2)}.stat.violet::after{background:var(--violet)}
+.stat.teal{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.2)}.stat.teal::after{background:var(--teal)}
+.stat.rose{background:rgba(225,29,72,.08);border-color:rgba(225,29,72,.2)}.stat.rose::after{background:var(--rose)}
+.stat.sky{background:rgba(3,105,161,.08);border-color:rgba(3,105,161,.2)}.stat.sky::after{background:var(--sky)}
+.stat.ember{background:rgba(234,88,12,.08);border-color:rgba(234,88,12,.2)}.stat.ember::after{background:var(--ember)}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:.4rem;font-family:'DM Mono',monospace}
+.stat-val{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.stat.gold .stat-val{color:var(--gold2)}
+.stat.violet .stat-val{color:var(--vll)}
+.stat.teal .stat-val{color:var(--tll)}
+.stat.rose .stat-val{color:var(--rll)}
+.stat.sky .stat-val{color:var(--sll)}
+.stat.ember .stat-val{color:var(--ell)}
+.stat-sub{font-size:11px;color:var(--t3);margin-top:3px}
+
+/* ── CARDS ── */
+.card{background:rgba(19,19,31,.7);border:1px solid rgba(109,40,217,.15);border-radius:var(--r);padding:1.1rem 1.35rem;margin-bottom:10px;backdrop-filter:blur(8px)}
+.card.border-gold{border-color:rgba(240,180,41,.25)}
+.card.border-teal{border-color:rgba(13,148,136,.25)}
+.card.border-violet{border-color:rgba(109,40,217,.3)}
+.card.border-rose{border-color:rgba(225,29,72,.25)}
+.cardsm{background:rgba(22,22,40,.6);border:1px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:.7rem .95rem;margin-bottom:7px}
+.ctitle{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:.35rem}
+.cbody{font-size:13px;color:var(--t2);line-height:1.7}
+.cbody ul{padding-left:1.1rem;margin-top:.35rem}
+.cbody li{margin-bottom:.3rem}
+.sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t4);margin:1.35rem 0 .7rem;font-family:'DM Mono',monospace}
+.divider{border:none;border-top:1px solid rgba(109,40,217,.1);margin:1rem 0}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+
+/* ── COURSE CARDS ── */
+.ccrd{
+  border-radius:var(--r);padding:1.1rem 1.25rem;cursor:pointer;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(19,19,31,.6);backdrop-filter:blur(8px);
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.ccrd::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.ccrd:hover{border-color:rgba(255,255,255,.18);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.cccode{font-size:10px;font-family:'DM Mono',monospace;color:var(--t3);margin-bottom:4px;letter-spacing:.08em}
+.ccname{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:.6rem;font-family:'Instrument Serif',serif;font-weight:400;font-size:17px}
+.ccmeta{display:flex;gap:7px;flex-wrap:wrap}
+.cctag{font-size:10px;padding:2px 9px;border-radius:100px;background:rgba(255,255,255,.06);color:var(--t2);font-weight:600;letter-spacing:.03em}
+.ccdays{position:absolute;top:.9rem;right:1.1rem;font-family:'DM Mono',monospace;font-size:12px;color:var(--t3)}
+.ccpw{height:2px;background:rgba(255,255,255,.05);border-radius:100px;margin-top:.85rem;overflow:hidden}
+.ccp{height:2px;border-radius:100px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.gpa-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;border:1px solid;font-family:'DM Mono',monospace;letter-spacing:.04em}
+
+/* ── GPA SCALE TABLE ── */
+.gpa-table{width:100%;border-collapse:collapse;font-size:12px}
+.gpa-table th{text-align:left;padding:.4rem .6rem;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t4);border-bottom:1px solid rgba(109,40,217,.12);font-family:'DM Mono',monospace}
+.gpa-table td{padding:.45rem .6rem;border-bottom:1px solid rgba(109,40,217,.07);color:var(--t2)}
+.gpa-table td:first-child{font-weight:700;font-family:'DM Mono',monospace;color:var(--t1)}
+.gpa-table tr.target-row td{color:var(--gold2)}
+.gpa-table tr.target-row td:first-child{color:var(--gold2)}
+.gpa-bar-cell{width:100px}
+.gpa-mini-bar{height:4px;border-radius:100px}
+
+/* ── BUTTONS ── */
+.btn{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:var(--rsm);background:linear-gradient(135deg,var(--violet),#9333ea);color:#fff;border:none;cursor:pointer;transition:all .18s;box-shadow:0 4px 20px rgba(109,40,217,.3);letter-spacing:.02em}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 25px rgba(109,40,217,.4)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btnsm{font-size:12px;padding:7px 13px}
+.btng{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;background:transparent;color:var(--t2);border:1px solid rgba(109,40,217,.25);cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.btng:hover{border-color:var(--vll);color:var(--t1);background:rgba(109,40,217,.1)}
+.btng.on{background:rgba(109,40,217,.2);color:var(--t1);border-color:var(--vl)}
+.btn-gcal{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:8px 15px;border-radius:var(--rsm);background:rgba(13,148,136,.18);color:var(--tll);border:1px solid rgba(13,148,136,.35);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.02em}
+.btn-gcal:hover{background:rgba(13,148,136,.28);transform:translateY(-1px)}
+.btn-gcal:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#e8a900);color:#000;box-shadow:0 4px 20px rgba(240,180,41,.3)}
+.btn-danger{background:rgba(225,29,72,.12);color:var(--rll);border:1px solid rgba(225,29,72,.25);border-radius:var(--rsm);padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif}
+.btn-danger:hover{background:rgba(225,29,72,.22)}
+
+/* ── INPUTS ── */
+input[type=text],input[type=date],input[type=number],select,textarea{
+  width:100%;font-family:'Syne',sans-serif;font-size:13px;font-weight:400;
+  color:var(--t1);background:rgba(22,22,40,.8);
+  border:1px solid rgba(109,40,217,.2);border-radius:var(--rsm);
+  padding:.65rem .9rem;outline:none;transition:all .15s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--vl);box-shadow:0 0 0 3px rgba(109,40,217,.12);
+}
+textarea{resize:vertical;line-height:1.55}
+select option{background:#16162a}
+.field{margin-bottom:11px}
+.field label{font-size:10px;font-weight:700;color:var(--t3);display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── TOGGLES ── */
+.togrow{display:flex;gap:6px;flex-wrap:wrap}
+.tog{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;padding:5px 13px;border-radius:100px;background:transparent;color:var(--t3);border:1px solid rgba(109,40,217,.2);cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.tog:hover{border-color:var(--vll);color:var(--t1)}
+.tog.on{background:rgba(109,40,217,.2);color:var(--vll);border-color:var(--vl)}
+
+/* ── COMPLIANCE ── */
+.ci{display:flex;align-items:center;gap:10px;padding:.6rem 0;border-bottom:1px solid rgba(109,40,217,.08);cursor:pointer;transition:all .12s}
+.ci:last-child{border-bottom:none}
+.ci:hover{padding-left:5px}
+.cibox{width:18px;height:18px;border-radius:4px;flex-shrink:0;border:1.5px solid rgba(109,40,217,.35);background:rgba(109,40,217,.06);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+.ci.done .cibox{background:linear-gradient(135deg,var(--violet),var(--teal));border-color:transparent;color:#fff;box-shadow:0 0 10px rgba(109,40,217,.3)}
+.ci.done .citxt{text-decoration:line-through;opacity:.4;color:var(--t3)}
+.citxt{font-size:13px;color:var(--t2);flex:1}
+.cipts{font-size:10px;font-family:'DM Mono',monospace;color:var(--vll);opacity:.7}
+
+/* ── CALENDAR ── */
+.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:.75rem}
+.caldh{font-size:9px;text-align:center;color:var(--t4);font-family:'DM Mono',monospace;padding:.25rem 0;font-weight:700;letter-spacing:.08em}
+.cald{min-height:62px;background:rgba(19,19,31,.5);border:1px solid rgba(109,40,217,.08);border-radius:var(--rxs);padding:.35rem .45rem;cursor:pointer;transition:all .12s}
+.cald:hover{border-color:rgba(109,40,217,.3);background:rgba(109,40,217,.06)}
+.cald.today{border-color:rgba(109,40,217,.5);background:rgba(109,40,217,.1)}
+.calnum{font-size:11px;font-family:'DM Mono',monospace;color:var(--t3)}
+.cald.today .calnum{color:var(--vll);font-weight:700}
+.calev{font-size:8px;margin-top:3px;border-radius:2px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.calev.start{background:rgba(13,148,136,.25);color:var(--tll)}
+.calev.review{background:rgba(240,180,41,.2);color:var(--gold3)}
+.calev.exam{background:rgba(225,29,72,.2);color:var(--rll)}
+.calev.mock{background:rgba(3,105,161,.2);color:var(--sll)}
+.calev.class{background:rgba(109,40,217,.15);color:var(--vll)}
+.calev.block{background:rgba(234,88,12,.2);color:var(--ell)}
+
+/* ── TIME BLOCKING (WEEKLY SPREAD) ── */
+.week-grid{display:grid;grid-template-columns:60px repeat(7,1fr);gap:0;border:1px solid rgba(109,40,217,.12);border-radius:var(--r);overflow:hidden}
+.wg-header{background:rgba(22,22,40,.8);padding:.55rem;text-align:center;font-size:11px;font-weight:700;color:var(--t3);border-bottom:1px solid rgba(109,40,217,.1);letter-spacing:.05em;font-family:'DM Mono',monospace}
+.wg-time{background:rgba(13,13,20,.5);padding:.5rem .4rem;font-size:10px;font-family:'DM Mono',monospace;color:var(--t4);border-right:1px solid rgba(109,40,217,.08);text-align:right;vertical-align:top;border-bottom:1px solid rgba(109,40,217,.05)}
+.wg-cell{border-right:1px solid rgba(109,40,217,.05);border-bottom:1px solid rgba(109,40,217,.05);min-height:36px;position:relative;background:rgba(13,13,20,.3)}
+.wg-cell:last-child{border-right:none}
+.wg-event{position:absolute;left:2px;right:2px;border-radius:3px;padding:2px 4px;font-size:9px;font-weight:700;overflow:hidden;cursor:pointer;transition:opacity .12s;z-index:2;line-height:1.3}
+.wg-event:hover{opacity:.85;z-index:10}
+.wg-event.study-block{background:rgba(109,40,217,.35);color:var(--vll);border-left:2px solid var(--vl)}
+.wg-event.class-block{background:rgba(13,148,136,.25);color:var(--tll);border-left:2px solid var(--teal)}
+.wg-event.exam-block{background:rgba(225,29,72,.3);color:var(--rll);border-left:2px solid var(--rose)}
+.wg-event.review-block{background:rgba(240,180,41,.2);color:var(--gold3);border-left:2px solid var(--gold)}
+.wg-event.free-block{background:rgba(255,255,255,.04);color:var(--t4);border-left:2px solid rgba(255,255,255,.08)}
+
+/* ── QUIZ ── */
+.qprog{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.qpbw{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden}
+.qpb{height:3px;background:linear-gradient(90deg,var(--violet),var(--teal));border-radius:100px;transition:width .3s}
+.qlbl{font-size:11px;font-family:'DM Mono',monospace;color:var(--t3)}
+.qtag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--vll);margin-bottom:.5rem;font-family:'DM Mono',monospace}
+.qtxt{font-size:16px;font-weight:500;color:var(--t1);line-height:1.55;margin-bottom:1.1rem;font-family:'Instrument Serif',serif}
+.qopts{display:flex;flex-direction:column;gap:7px;margin-bottom:.85rem}
+.qopt{font-family:'Syne',sans-serif;font-size:13px;font-weight:500;padding:11px 14px;border-radius:var(--rsm);border:1px solid rgba(109,40,217,.18);background:rgba(22,22,40,.6);color:var(--t1);cursor:pointer;text-align:left;transition:all .12s;line-height:1.35}
+.qopt:hover:not(:disabled){border-color:var(--vl);background:rgba(109,40,217,.08)}
+.qopt.correct{border-color:var(--teal);background:rgba(13,148,136,.1);color:var(--tll)}
+.qopt.wrong{border-color:var(--rose);background:rgba(225,29,72,.08);color:var(--rll)}
+.qopt:disabled{cursor:default}
+.qexp{font-size:13px;background:rgba(109,40,217,.07);border:1px solid rgba(109,40,217,.15);border-radius:var(--rsm);padding:.8rem 1rem;line-height:1.65;color:var(--t2);margin-bottom:.8rem;display:none}
+.done-hero{text-align:center;padding:2rem 0 1.5rem}
+.dpct{font-family:'DM Mono',monospace;font-size:60px;font-weight:500;line-height:1}
+.dpct.good{background:linear-gradient(135deg,var(--tll),var(--gold3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.dpct.mid{background:linear-gradient(135deg,var(--ell),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.dpct.bad{background:linear-gradient(135deg,var(--rll),var(--ell));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.dsub{font-size:14px;color:var(--t2);margin-top:.4rem}
+.vcrd{display:inline-block;margin-top:.7rem;padding:5px 16px;border-radius:100px;font-size:12px;font-weight:700;border:1px solid;font-family:'DM Mono',monospace}
+.vcg{background:rgba(13,148,136,.12);color:var(--tll);border-color:rgba(13,148,136,.3)}
+.vcm{background:rgba(240,180,41,.1);color:var(--gold3);border-color:rgba(240,180,41,.3)}
+.vcb{background:rgba(225,29,72,.08);color:var(--rll);border-color:rgba(225,29,72,.25)}
+
+/* ── ALERTS ── */
+.alert{border-radius:var(--rsm);padding:.75rem 1rem;font-size:13px;margin-bottom:10px;border:1px solid;line-height:1.55}
+.alert.warn{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.25);color:var(--gold3)}
+.alert.success{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.25);color:var(--tll)}
+.alert.info{background:rgba(109,40,217,.08);border-color:rgba(109,40,217,.25);color:var(--vll)}
+.alert.danger{background:rgba(225,29,72,.08);border-color:rgba(225,29,72,.25);color:var(--rll)}
+
+/* ── MODAL ── */
+.moverlay{position:fixed;inset:0;background:rgba(5,5,15,.85);backdrop-filter:blur(10px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.moverlay.open{display:flex}
+.modal{background:rgba(16,16,30,.96);border:1px solid rgba(109,40,217,.3);border-radius:var(--r);padding:1.5rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 60px rgba(109,40,217,.12)}
+.mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.mtitle{font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:var(--t1)}
+.mclose{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;transition:color .12s}
+.mclose:hover{color:var(--t1)}
+
+/* ── PRED ── */
+.predq{border-left:2px solid rgba(109,40,217,.4);background:rgba(109,40,217,.05);padding:.75rem 1rem;border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:8px}
+.pconf{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;font-family:'DM Mono',monospace}
+.pconf.high{color:var(--tll)}.pconf.med{color:var(--gold3)}.pconf.low{color:var(--rll)}
+.ptxt{font-size:13px;color:var(--t1);line-height:1.5}
+.preason{font-size:11px;color:var(--t3);margin-top:3px}
+
+/* ── ANKI ── */
+.ankcard{background:rgba(22,22,40,.7);border:1px solid rgba(109,40,217,.18);border-radius:var(--rsm);padding:.9rem 1.1rem;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.ankcard:hover{border-color:var(--vl);background:rgba(109,40,217,.07);transform:translateY(-1px)}
+.ankfront{font-size:13px;font-weight:700;color:var(--t1)}
+.anktopic{font-size:10px;font-family:'DM Mono',monospace;color:var(--vll);opacity:.7;margin-bottom:4px;letter-spacing:.06em}
+.ankback{font-size:12px;color:var(--t2);line-height:1.55;margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(109,40,217,.12);display:none}
+.ankcard.flipped .ankback{display:block}
+
+/* ── STREAK ── */
+.srow{display:flex;gap:5px}
+.sdot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(109,40,217,.2);transition:all .2s}
+.sdot.done{background:linear-gradient(135deg,var(--violet),var(--teal));border-color:transparent;box-shadow:0 0 8px rgba(109,40,217,.35)}
+.sdot.today{border-color:var(--vll)}
+
+/* ── POMO ── */
+.pring{width:150px;height:150px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;position:relative}
+.pring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.ptime{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--t1)}
+
+/* ── XP ── */
+.xpw{height:6px;background:rgba(109,40,217,.1);border-radius:100px;margin:.5rem 0;overflow:hidden}
+.xpb{height:6px;border-radius:100px;background:linear-gradient(90deg,var(--violet),var(--teal));transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* ── ACHIEVEMENTS ── */
+.ach{display:flex;align-items:center;gap:10px;padding:.6rem;border-radius:var(--rsm);background:rgba(19,19,31,.6);border:1px solid rgba(109,40,217,.12);margin-bottom:7px;transition:all .15s}
+.ach:not(.achlk):hover{border-color:rgba(109,40,217,.3);background:rgba(109,40,217,.08)}
+.achico{font-size:24px;width:38px;text-align:center}
+.achn{font-size:13px;font-weight:700;color:var(--t1)}
+.achd{font-size:11px;color:var(--t3)}
+.achlk{opacity:.3;filter:grayscale(1)}
+
+/* ── GCAL ROW ── */
+.gcal-row{display:flex;align-items:flex-start;gap:12px;padding:.8rem;background:rgba(13,148,136,.05);border:1px solid rgba(13,148,136,.18);border-radius:var(--rsm);margin-bottom:8px}
+.gcal-row-ico{font-size:20px;width:32px;text-align:center;flex-shrink:0;padding-top:1px}
+.gcal-row-body{flex:1}
+.gcal-row-title{font-size:13px;font-weight:700;color:var(--t1)}
+.gcal-row-date{font-size:11px;font-family:'DM Mono',monospace;color:var(--tll);margin-top:2px}
+.gcal-row-desc{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4}
+.status-live{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;background:rgba(13,148,136,.18);color:var(--tll);border:1px solid rgba(13,148,136,.3);font-family:'DM Mono',monospace}
+.status-pending{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;background:rgba(240,180,41,.12);color:var(--gold3);border:1px solid rgba(240,180,41,.25);font-family:'DM Mono',monospace}
+
+/* SPINNER */
+.spin{width:18px;height:18px;border:2px solid rgba(109,40,217,.2);border-top-color:var(--vl);border-radius:50%;animation:rot .65s linear infinite;display:inline-block;vertical-align:middle;margin-right:7px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.tag{font-size:11px;padding:3px 9px;border-radius:100px;background:rgba(109,40,217,.1);color:var(--vll);border:1px solid rgba(109,40,217,.2)}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:.5rem}
+
+/* FREQ */
+.frow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.fname{font-size:12px;color:var(--t2);min-width:160px;flex-shrink:0}
+.fwrap{flex:1;height:4px;background:rgba(255,255,255,.04);border-radius:100px;overflow:hidden}
+.ffill{height:4px;border-radius:100px;background:linear-gradient(90deg,var(--violet),var(--teal))}
+.fpct{font-size:11px;font-family:'DM Mono',monospace;color:var(--t3);min-width:28px;text-align:right}
+
+@media(max-width:900px){.sb{transform:translateX(-100%)}.main{margin-left:0}.stat-grid,.g2,.g3,.g4,.f2,.week-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-wordmark">GradeOS</div>
+    <div class="sb-sub">Wilfrid Laurier · BBA · First Year</div>
+  </div>
+
+  <div class="sb-wlu">
+    <div class="sb-wlu-icon">🦅</div>
+    <div class="sb-wlu-text">
+      <div class="sb-wlu-name">Kajepan N.</div>
+      <div class="sb-wlu-year">1st Year BBA · Lazaridis</div>
+    </div>
+  </div>
+
+  <div class="sb-gpa-widget">
+    <div class="sb-gpa-label">WLU GPA (12-pt scale)</div>
+    <div class="sb-gpa-row">
+      <div class="sb-gpa-num" id="sbGPA">—</div>
+      <div class="sb-gpa-max">/ 12.0</div>
+    </div>
+    <div class="sb-gpa-bar-wrap"><div class="sb-gpa-bar" id="sbGPABar" style="width:0%"></div></div>
+  </div>
+
+  <div class="sb-sec">Overview</div>
+  <div class="sb-item active" onclick="nav('dashboard')"><span class="sb-ico">⬛</span>Dashboard</div>
+  <div class="sb-item" onclick="nav('courses')"><span class="sb-ico">📚</span>Courses<span class="sb-count" id="cBadge">0</span></div>
+  <div class="sb-item" onclick="nav('gpa')"><span class="sb-ico">🎓</span>GPA Tracker</div>
+
+  <div class="sb-sec">Study</div>
+  <div class="sb-item" onclick="nav('calendar')"><span class="sb-ico">📅</span>Calendar</div>
+  <div class="sb-item" onclick="nav('timeblock')"><span class="sb-ico">⏱</span>Weekly Blocks</div>
+  <div class="sb-item" onclick="nav('gcalsync')"><span class="sb-ico">🔗</span>Google Calendar</div>
+  <div class="sb-item" onclick="nav('pomodoro')"><span class="sb-ico">🍅</span>Pomodoro</div>
+  <div class="sb-item" onclick="nav('compliance')"><span class="sb-ico">✅</span>Daily Log</div>
+
+  <div class="sb-sec">Intelligence</div>
+  <div class="sb-item" onclick="nav('quiz')"><span class="sb-ico">⚡</span>Quiz Engine</div>
+  <div class="sb-item" onclick="nav('predictor')"><span class="sb-ico">🔮</span>Exam Predictor</div>
+  <div class="sb-item" onclick="nav('anki')"><span class="sb-ico">🃏</span>Flashcards</div>
+
+  <div class="sb-sec">Progress</div>
+  <div class="sb-item" onclick="nav('progress')"><span class="sb-ico">📈</span>Progress</div>
+  <div class="sb-item" onclick="nav('achievements')"><span class="sb-ico">🏆</span>Achievements</div>
+
+  <div class="sb-bot">
+    <div class="sb-compliance">Daily compliance<strong id="sbComp">0/100</strong></div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="tb-breadcrumb">GradeOS · WLU BBA</div>
+    <div class="tb-breadcrumb-cur" id="tbTitle">Dashboard</div>
+  </div>
+  <div class="tb-right">
+    <div class="chip chip-gcal" onclick="nav('gcalsync')"><div class="chip-dot"></div>GCal Live</div>
+    <div class="chip chip-score">Proj: <span id="projScore" style="color:var(--gold2);margin-left:3px">—</span></div>
+    <button class="btn btnsm" onclick="openM('addM')">+ Add Course</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ════ DASHBOARD ════ -->
+<div class="panel active" id="p-dashboard">
+  <div id="dAlerts"></div>
+  <div class="stat-grid" id="dashStats">
+    <div class="stat gold"><div class="stat-label">WLU GPA</div><div class="stat-val" id="ds-gpa">—</div><div class="stat-sub">12-point scale</div></div>
+    <div class="stat violet"><div class="stat-label">Courses</div><div class="stat-val" id="ds-c">0</div><div class="stat-sub">Active</div></div>
+    <div class="stat teal"><div class="stat-label">On Track</div><div class="stat-val" id="ds-ot">—</div><div class="stat-sub">90%+ pace</div></div>
+    <div class="stat rose"><div class="stat-label">Next Exam</div><div class="stat-val" id="ds-ne">—</div><div class="stat-sub" id="ds-nn">No exams set</div></div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sec">Your courses</div>
+      <div id="dCourses"><div class="cbody" style="color:var(--t4);padding:.75rem 0">No courses — click "+ Add Course"</div></div>
+    </div>
+    <div>
+      <div class="sec">Today's focus</div>
+      <div id="dToday"></div>
+      <div class="sec" style="margin-top:1.1rem">This week's compliance</div>
+      <div class="card border-violet">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem">
+          <div class="ctitle" style="margin:0">Daily log</div>
+          <div class="srow" id="wDots"></div>
+        </div>
+        <div id="dComp">
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Studied new material (active)</div><div class="cipts">+10</div></div>
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Cornell notes from memory</div><div class="cipts">+10</div></div>
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Self-tested without notes</div><div class="cipts">+15</div></div>
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Spaced rep review done</div><div class="cipts">+15</div></div>
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">5+ quiz questions</div><div class="cipts">+20</div></div>
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Fixed every wrong answer</div><div class="cipts">+15</div></div>
+          <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Evening blank-page recall</div><div class="cipts">+15</div></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;color:var(--t2)">Compliance score</span>
+          <span id="dCS" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--tll)">0/100</span>
+        </div>
+        <button class="btn" style="width:100%;margin-top:.85rem" onclick="logDay()">Log today →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ COURSES ════ -->
+<div class="panel" id="p-courses">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+    <div class="page-title">Your Courses</div>
+    <button class="btn" onclick="openM('addM')">+ Add Course</button>
+  </div>
+  <div id="cList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px"></div>
+</div>
+
+<!-- ════ GPA TRACKER ════ -->
+<div class="panel" id="p-gpa">
+  <div class="page-title">GPA Tracker <em>— WLU 12-point scale</em></div>
+  <div class="page-desc">Wilfrid Laurier University grading system. Enter your grades to track your GPA in real time.</div>
+  <div class="g2" style="margin-top:1.25rem">
+    <div>
+      <div class="sec">WLU grading scale</div>
+      <div class="card border-gold">
+        <table class="gpa-table">
+          <thead><tr><th>Letter</th><th>%</th><th>GPA pts</th><th>Description</th><th>Goal</th></tr></thead>
+          <tbody id="gpaTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="sec">Your grades this semester</div>
+      <div id="gradeCards"></div>
+      <div class="card border-gold" style="margin-top:.5rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+          <div class="ctitle" style="margin:0">Semester GPA</div>
+          <div style="font-family:'DM Mono',monospace;font-size:26px;font-weight:700;color:var(--gold2)" id="semGPA">—</div>
+        </div>
+        <div class="sb-gpa-bar-wrap" style="height:6px"><div class="sb-gpa-bar" id="semGPABar" style="width:0%"></div></div>
+        <div style="font-size:12px;color:var(--t3);margin-top:.5rem">Target: 10.0+ (A) per course to maintain Dean's List standing</div>
+      </div>
+      <div class="sec">Add a grade</div>
+      <div class="card">
+        <div class="f2">
+          <div class="field"><label>Course</label><select id="gradeCourse"><option value="">Select course…</option></select></div>
+          <div class="field"><label>Assessment</label><input type="text" id="gradeAssess" placeholder="Midterm 1, Quiz 3…"></div>
+        </div>
+        <div class="f2">
+          <div class="field"><label>Score (%)</label><input type="number" id="gradeScore" min="0" max="100" step="0.5" placeholder="84"></div>
+          <div class="field"><label>Weight (%)</label><input type="number" id="gradeWeight" min="1" max="100" step="1" placeholder="25"></div>
+        </div>
+        <button class="btn-gold btn" style="width:100%" onclick="addGrade()">Add grade →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ CALENDAR ════ -->
+<div class="panel" id="p-calendar">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px">
+    <div class="page-title" id="calLbl">Calendar</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btng" onclick="cm(-1)">← Prev</button>
+      <button class="btng" onclick="cm(1)">Next →</button>
+      <button class="btn-gcal" onclick="nav('gcalsync')">🔗 Sync to Google Calendar</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="calg" id="calH"></div>
+    <div class="calg" id="calG"></div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--t3)">
+      <span><span style="color:var(--tll)">■</span> Study block</span>
+      <span><span style="color:var(--gold3)">■</span> Review</span>
+      <span><span style="color:var(--sll)">■</span> Mock</span>
+      <span><span style="color:var(--rll)">■</span> Exam</span>
+      <span><span style="color:var(--vll)">■</span> Class</span>
+    </div>
+  </div>
+  <div class="sec">Upcoming</div>
+  <div id="upEv"></div>
+</div>
+
+<!-- ════ TIME BLOCKS (WEEKLY SPREAD) ════ -->
+<div class="panel" id="p-timeblock">
+  <div class="page-title">Weekly Study Blocks</div>
+  <div class="page-desc" style="margin-bottom:1.25rem">Study is spread across the week — never more than 2 hours on any single day. Built around your actual WLU class schedule.</div>
+
+  <div class="alert info">⏱ Each block is 90 minutes max. The system automatically avoids your EC140 (Mon/Wed/Fri 2:30–3:50) and BU121 (Tue/Thu 8:30–9:50 + 5:30–6:50) classes.</div>
+
+  <div class="g2">
+    <div>
+      <div class="sec">This week — smart blocks</div>
+      <div id="weeklyBlocks"></div>
+    </div>
+    <div>
+      <div class="sec">The 90-min study unit (never more than this per topic)</div>
+      <div class="card border-violet">
+        <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:55px;padding-top:2px">0:00</div>
+          <div style="flex:1;background:rgba(109,40,217,.1);border-left:2px solid var(--vl);border-radius:0 var(--rsm) var(--rsm) 0;padding:.55rem .8rem">
+            <div style="font-size:12px;font-weight:700;color:var(--t1)">Pre-load</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">Write what you know from memory. No notes.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:55px;padding-top:2px">5:00</div>
+          <div style="flex:1;background:rgba(109,40,217,.1);border-left:2px solid var(--vl);border-radius:0 var(--rsm) var(--rsm) 0;padding:.55rem .8rem">
+            <div style="font-size:12px;font-weight:700;color:var(--t1)">Focused study (30 min)</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">One topic. Active engagement. No phone.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:55px;padding-top:2px">35:00</div>
+          <div style="flex:1;background:rgba(13,148,136,.08);border-left:2px solid var(--teal);border-radius:0 var(--rsm) var(--rsm) 0;padding:.55rem .8rem">
+            <div style="font-size:12px;font-weight:700;color:var(--t1)">Break (10 min)</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">Walk. No screens. This is when memory forms.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:55px;padding-top:2px">45:00</div>
+          <div style="flex:1;background:rgba(240,180,41,.07);border-left:2px solid var(--gold);border-radius:0 var(--rsm) var(--rsm) 0;padding:.55rem .8rem">
+            <div style="font-size:12px;font-weight:700;color:var(--t1)">Cornell notes from memory</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">Close notes first. Write. Then check gaps.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:55px;padding-top:2px">65:00</div>
+          <div style="flex:1;background:rgba(13,148,136,.08);border-left:2px solid var(--teal);border-radius:0 var(--rsm) var(--rsm) 0;padding:.55rem .8rem">
+            <div style="font-size:12px;font-weight:700;color:var(--t1)">Self-test (15 min)</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">Quiz Engine or blank-page: definition + formula + application</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:55px;padding-top:2px">80:00</div>
+          <div style="flex:1;background:rgba(109,40,217,.1);border-left:2px solid var(--vl);border-radius:0 var(--rsm) var(--rsm) 0;padding:.55rem .8rem">
+            <div style="font-size:12px;font-weight:700;color:var(--t1)">Connect (10 min)</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">How does today's topic link to everything else?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ GCAL SYNC ════ -->
+<div class="panel" id="p-gcalsync">
+  <div class="page-title">🔗 Google Calendar <em>— Live</em></div>
+  <div class="page-desc" style="margin-bottom:1.25rem">Study blocks are pushed directly into kajepannathan@gmail.com, spread across days — never crammed into one.</div>
+
+  <div class="alert success">✅ Connected: kajepannathan@gmail.com (America/Toronto) · 7 study events already live in your calendar</div>
+
+  <div class="g2">
+    <div>
+      <div class="sec">Push schedule for a course</div>
+      <div class="card border-teal">
+        <div class="field"><label>Course</label><select id="gcalCourse"><option value="">Select course…</option></select></div>
+        <div class="field"><label>Spread style</label>
+          <div class="togrow" id="gcalSpread">
+            <button class="tog on" onclick="tog('gcalSpread',this,'light')">Light (30 min/day)</button>
+            <button class="tog" onclick="tog('gcalSpread',this,'medium')">Medium (60 min/day)</button>
+            <button class="tog" onclick="tog('gcalSpread',this,'intense')">Intense (90 min/day)</button>
+          </div>
+        </div>
+        <div class="field"><label>Reminder</label>
+          <div class="togrow" id="gcalRemind">
+            <button class="tog on" onclick="tog('gcalRemind',this,'30')">30 min before</button>
+            <button class="tog" onclick="tog('gcalRemind',this,'480')">8 hrs before</button>
+            <button class="tog" onclick="tog('gcalRemind',this,'1440')">Day before</button>
+          </div>
+        </div>
+        <button class="btn-gcal" style="padding:11px 20px;font-size:13px;width:100%" onclick="pushToGCal()" id="gcalBtn">🔗 Push spread schedule →</button>
+        <div id="gcalStatus" style="margin-top:.85rem"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sec">Already live in your calendar</div>
+      <div class="gcal-row"><div class="gcal-row-ico">📚</div><div class="gcal-row-body"><div class="gcal-row-title">BU127 Study Block 1 — Ch5 Debits & Credits</div><div class="gcal-row-date">Mar 17 · 10:00–11:30am</div><div class="gcal-row-desc">After BU121 class ends · 90 min</div></div><div class="status-live">✓ Live</div></div>
+      <div class="gcal-row"><div class="gcal-row-ico">📚</div><div class="gcal-row-body"><div class="gcal-row-title">BU127 Study Block 2 — Ch6-7 Income Statement</div><div class="gcal-row-date">Mar 18 · 10:00–11:30am</div><div class="gcal-row-desc">Before EC140 class · 90 min</div></div><div class="status-live">✓ Live</div></div>
+      <div class="gcal-row"><div class="gcal-row-ico">🎯</div><div class="gcal-row-body"><div class="gcal-row-title">BU127 Mock Exam — Ch5-8 Full Run</div><div class="gcal-row-date">Mar 20 · 10:00–11:30am</div><div class="gcal-row-desc">Day before BU127 Midterm 2</div></div><div class="status-live">✓ Live</div></div>
+      <div class="gcal-row"><div class="gcal-row-ico">📚</div><div class="gcal-row-body"><div class="gcal-row-title">ML Study Start</div><div class="gcal-row-date">Mar 16 (all day)</div></div><div class="status-live">✓ Live</div></div>
+      <div class="gcal-row"><div class="gcal-row-ico">🔁</div><div class="gcal-row-body"><div class="gcal-row-title">ML Spaced Rep Reviews ×2</div><div class="gcal-row-date">Mar 19 + Mar 23</div></div><div class="status-live">✓ Live</div></div>
+      <div class="gcal-row"><div class="gcal-row-ico">🎯</div><div class="gcal-row-body"><div class="gcal-row-title">ML Mock Exam</div><div class="gcal-row-date">Mar 28</div></div><div class="status-live">✓ Live</div></div>
+    </div>
+  </div>
+
+  <div class="sec">What gets pushed — spread across days, not crammed</div>
+  <div class="card">
+    <div class="cbody"><ul>
+      <li><strong style="color:var(--tll)">Study blocks</strong> — pushed as timed calendar events (30/60/90 min) spread across available days, placed around your existing WLU classes</li>
+      <li style="margin-top:.35rem"><strong style="color:var(--gold3)">Spaced rep reviews</strong> — Day 3, Day 7, Day 14 — scheduled as 25-min blocks in free slots</li>
+      <li style="margin-top:.35rem"><strong style="color:var(--sll)">Mock exam</strong> — 90-min block 3 days before exam, placed in the morning</li>
+      <li style="margin-top:.35rem"><strong style="color:var(--rll)">Exam day</strong> — marked with all-day event + 1-day email reminder</li>
+      <li style="margin-top:.35rem"><strong style="color:var(--vll)">WLU class schedule</strong> — EC140 (MWF 2:30–3:50) and BU121 (TTh 8:30–9:50, 5:30–6:50) automatically avoided when placing blocks</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ════ POMODORO ════ -->
+<div class="panel" id="p-pomodoro">
+  <div class="page-title">Pomodoro Timer</div>
+  <div class="g2">
+    <div class="card border-violet" style="text-align:center;padding:2rem">
+      <div class="pring">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="65" fill="none" stroke="rgba(109,40,217,.15)" stroke-width="8"/>
+          <circle id="pCircle" cx="75" cy="75" r="65" fill="none" stroke="url(#pg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="408.4" stroke-dashoffset="0"/>
+          <defs><linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#0d9488"/></linearGradient></defs>
+        </svg>
+        <div class="ptime" id="pTime">25:00</div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:2px" id="pLabel">Focus session</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:1rem">
+        <button class="btn" onclick="pToggle()" id="pBtn">▶ Start</button>
+        <button class="btng" onclick="pReset()">Reset</button>
+      </div>
+      <div style="display:flex;gap:7px;justify-content:center;margin-top:.75rem">
+        <button class="tog on btng" onclick="setPM(25,'Focus',this)">25</button>
+        <button class="tog btng" onclick="setPM(5,'Break',this)">5</button>
+        <button class="tog btng" onclick="setPM(15,'Long break',this)">15</button>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--gold2);margin-top:1rem" id="pCount">0</div>
+      <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">sessions today</div>
+    </div>
+    <div>
+      <div class="sec">Current task</div>
+      <div class="card">
+        <div class="field"><label>What are you studying?</label><input type="text" id="pTask" placeholder="BU127 — Ch6 Income Statement…"></div>
+        <div id="pTaskActive" style="display:none;font-size:13px;color:var(--vll);font-weight:700;margin-top:.35rem">▶ <span id="pTaskName"></span></div>
+        <button class="btng" onclick="setPTask()" style="margin-top:.5rem">Set task</button>
+      </div>
+      <div class="sec">Science of Pomodoro</div>
+      <div class="card border-teal"><div class="cbody"><ul>
+        <li><strong style="color:var(--vll)">25 min focus</strong> — one concept only, no interruptions, phone face-down</li>
+        <li style="margin-top:.35rem"><strong style="color:var(--tll)">5 min break</strong> — walk, stretch, no screens (brain consolidates)</li>
+        <li style="margin-top:.35rem"><strong style="color:var(--gold3)">4 rounds</strong> → 15-min long break</li>
+        <li style="margin-top:.35rem"><strong style="color:var(--ell)">4 Pomodoros</strong> = one complete 90-min study unit = ~1 topic mastered</li>
+      </ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ COMPLIANCE ════ -->
+<div class="panel" id="p-compliance">
+  <div class="page-title">Daily Log</div>
+  <div class="alert info" style="margin-top:.75rem">80+ pts/day, 5+ days/week → 90%+ projected grade. This is the most important screen.</div>
+  <div class="g2">
+    <div>
+      <div class="sec">Today's checklist</div>
+      <div class="card border-violet" id="fullComp">
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Studied new material — active, not passive</div><div class="cipts">+10</div></div>
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Cornell notes written from memory (source closed)</div><div class="cipts">+10</div></div>
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Self-tested without notes — identified gaps</div><div class="cipts">+15</div></div>
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Spaced repetition review (Day 1/3/7/14)</div><div class="cipts">+15</div></div>
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">5+ quiz questions in Quiz Engine</div><div class="cipts">+20</div></div>
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Fixed every wrong answer completely</div><div class="cipts">+15</div></div>
+        <div class="ci" onclick="tc(this)"><div class="cibox"></div><div class="citxt">Evening recall — blank page, checked gaps</div><div class="cipts">+15</div></div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;color:var(--t2)">Score</span>
+          <span id="csFull" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:800;color:var(--tll)">0/100</span>
+        </div>
+        <div id="cFB" style="font-size:12px;margin-top:.4rem;min-height:18px"></div>
+        <button class="btn" style="width:100%;margin-top:.85rem" onclick="logDay()">Log day →</button>
+      </div>
+    </div>
+    <div>
+      <div class="sec">30-day history</div>
+      <div class="card"><div id="c30" style="display:flex;flex-wrap:wrap;gap:4px"></div></div>
+      <div class="sec">Score → WLU grade</div>
+      <div class="card border-gold">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--t2)">90–100 pts, 5+d/wk</span><span style="color:var(--gold2);font-family:'DM Mono',monospace;font-weight:700">A+ (12.0 GPA)</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--t2)">80–89 pts, 5+d/wk</span><span style="color:var(--gold3);font-family:'DM Mono',monospace;font-weight:700">A (10.0 GPA)</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--t2)">70–79 pts, 4d/wk</span><span style="color:var(--tll);font-family:'DM Mono',monospace;font-weight:700">B+ (9.0 GPA)</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--t2)">Below 70 / irregular</span><span style="color:var(--rll);font-family:'DM Mono',monospace;font-weight:700">B or lower</span></div>
+        </div>
+      </div>
+      <div class="sec">XP</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.4rem">
+          <div style="font-size:13px;color:var(--t2)">Level <span id="xpLv" style="color:var(--vll);font-weight:700">1</span></div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--t3)"><span id="xpC">0</span>/500 XP</div>
+        </div>
+        <div class="xpw"><div class="xpb" id="xpBar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ QUIZ ════ -->
+<div class="panel" id="p-quiz">
+  <div class="page-title">Quiz Engine</div>
+  <div id="qSetup" style="margin-top:.75rem">
+    <div class="g2">
+      <div>
+        <div class="field"><label>Course</label><select id="qSel"><option value="">Select course…</option></select></div>
+        <div class="field"><label>Custom topics</label><textarea id="qCustom" style="min-height:60px" placeholder="Comma separated — any subject, any level…"></textarea></div>
+      </div>
+      <div>
+        <div class="field"><label>Difficulty</label>
+          <div class="togrow" id="diffR">
+            <button class="tog" onclick="tog('diffR',this,'Intro')">Intro</button>
+            <button class="tog on" onclick="tog('diffR',this,'Intermediate')">Intermediate</button>
+            <button class="tog" onclick="tog('diffR',this,'Advanced')">Advanced</button>
+            <button class="tog" onclick="tog('diffR',this,'Exam simulation')">Exam sim</button>
+          </div>
+        </div>
+        <div class="field" style="margin-top:.75rem"><label>Questions</label>
+          <div class="togrow" id="qnR">
+            <button class="tog" onclick="tog('qnR',this,'5')">5</button>
+            <button class="tog on" onclick="tog('qnR',this,'10')">10</button>
+            <button class="tog" onclick="tog('qnR',this,'15')">15</button>
+            <button class="tog" onclick="tog('qnR',this,'20')">20</button>
+          </div>
+        </div>
+        <button class="btn" style="width:100%;margin-top:1rem" onclick="startQ()">⚡ Start quiz</button>
+      </div>
+    </div>
+  </div>
+  <div id="qActive" style="display:none">
+    <div class="card border-violet" style="margin-top:.75rem">
+      <div class="qprog"><div class="qlbl" id="qPL">1/10</div><div class="qpbw"><div class="qpb" id="qPB" style="width:10%"></div></div><div class="qlbl" id="qPR">0 ✓</div></div>
+      <div class="qtag" id="qTag"></div>
+      <div class="qtxt" id="qTxt">Loading…</div>
+      <div class="qopts" id="qOpts"></div>
+      <div class="qexp" id="qExp"></div>
+      <div style="text-align:right"><button class="btn btnsm" id="qNxt" onclick="nQ()" style="display:none">Next →</button></div>
+    </div>
+  </div>
+  <div id="qDone" style="display:none">
+    <div class="card border-violet" style="margin-top:.75rem">
+      <div class="done-hero"><div class="dpct" id="dPct">—</div><div class="dsub" id="dSub"></div><div id="dVerd"></div></div>
+      <div class="divider"></div>
+      <div id="dBreak"></div>
+      <div style="display:flex;gap:8px;margin-top:.85rem;flex-wrap:wrap">
+        <button class="btng" onclick="resetQ()">Another quiz</button>
+        <button class="btng" onclick="nav('anki')">→ Generate Anki deck</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PREDICTOR ════ -->
+<div class="panel" id="p-predictor">
+  <div class="page-title">🔮 Exam Predictor</div>
+  <div class="card" style="margin-top:.75rem">
+    <div class="field"><label>Course</label><select id="predSel"><option value="">Select course…</option></select></div>
+    <div class="field"><label>Mode</label>
+      <div class="togrow" id="predMode">
+        <button class="tog on" onclick="tog('predMode',this,'lesson')">Lecture notes → predict questions</button>
+        <button class="tog" onclick="tog('predMode',this,'paper')">Past exam → predict next exam</button>
+      </div>
+    </div>
+    <div class="field"><label>Paste content</label><textarea id="predTxt" style="min-height:130px" placeholder="Paste lecture notes, slides, or past exam text…"></textarea></div>
+    <button class="btn" onclick="runPred()" id="predBtn">🔮 Analyze & predict →</button>
+  </div>
+  <div id="predOut" style="display:none"></div>
+</div>
+
+<!-- ════ ANKI ════ -->
+<div class="panel" id="p-anki">
+  <div class="page-title">🃏 Flashcard Deck</div>
+  <div class="card" style="margin-top:.75rem">
+    <div class="field"><label>Course</label><select id="ankiSel"><option value="">Select course…</option></select></div>
+    <div class="field"><label>Custom topics (optional)</label><textarea id="ankiExtra" style="min-height:55px" placeholder="Leave blank for course topics…"></textarea></div>
+    <button class="btn" onclick="genAnki()" id="ankiBtn">🃏 Generate deck →</button>
+  </div>
+  <div id="ankiOut" style="display:none">
+    <div class="sec">Deck — click any card to flip</div>
+    <div id="ankiCards"></div>
+    <div style="display:flex;gap:8px;margin-top:.5rem">
+      <button class="btng" onclick="copyAnki()">Copy CSV → Anki</button>
+      <button class="btng" onclick="shuffleAnki()">🔀 Shuffle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PROGRESS ════ -->
+<div class="panel" id="p-progress">
+  <div class="page-title">📈 Progress</div>
+  <div class="g2" style="margin-top:.75rem">
+    <div>
+      <div class="sec">Quiz performance</div>
+      <div class="card border-teal"><div id="pChart" style="min-height:120px;display:flex;align-items:flex-end;gap:4px;padding:.5rem 0"></div><div style="font-size:12px;color:var(--t3);margin-top:.5rem">Last <span id="pN">0</span> quiz sessions</div></div>
+    </div>
+    <div>
+      <div class="sec">Course quiz averages → WLU grades</div>
+      <div id="pCourses"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ACHIEVEMENTS ════ -->
+<div class="panel" id="p-achievements">
+  <div class="page-title">🏆 Achievements</div>
+  <div style="font-size:13px;color:var(--t3);margin:.5rem 0 1.25rem">Unlock by following the system.</div>
+  <div id="achGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px"></div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ADD COURSE MODAL -->
+<div class="moverlay" id="addM">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle">Add Course</div><button class="mclose" onclick="closeM('addM')">✕</button></div>
+    <div class="f2">
+      <div class="field"><label>Course code</label><input type="text" id="mc-code" placeholder="BU127"></div>
+      <div class="field"><label>Course name</label><input type="text" id="mc-name" placeholder="Financial Accounting"></div>
+    </div>
+    <div class="f2">
+      <div class="field"><label>Exam date</label><input type="date" id="mc-exam"></div>
+      <div class="field"><label>Hours available per study day</label><input type="number" id="mc-hrs" value="1.5" min="0.5" max="4" step="0.5"></div>
+    </div>
+    <div class="field"><label>Subject area</label>
+      <div class="togrow" id="mc-subj" style="flex-wrap:wrap">
+        <button class="tog on" onclick="tog('mc-subj',this,'Finance')">Finance</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Accounting')">Accounting</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Marketing')">Marketing</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Economics')">Economics</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Statistics')">Statistics</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Strategy')">Strategy</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Org Behaviour')">Org Behaviour</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Anthropology')">Anthropology</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Communications')">Communications</button>
+        <button class="tog" onclick="tog('mc-subj',this,'Other')">Other</button>
+      </div>
+    </div>
+    <div class="field"><label>Exam type</label>
+      <div class="togrow" id="mc-etype">
+        <button class="tog on" onclick="tog('mc-etype',this,'Written')">Written</button>
+        <button class="tog" onclick="tog('mc-etype',this,'MCQ')">MCQ</button>
+        <button class="tog" onclick="tog('mc-etype',this,'Problems')">Problems</button>
+        <button class="tog" onclick="tog('mc-etype',this,'Mixed')">Mixed</button>
+        <button class="tog" onclick="tog('mc-etype',this,'Case study')">Case study</button>
+      </div>
+    </div>
+    <div class="field"><label>Topics / syllabus</label><textarea id="mc-topics" style="min-height:75px" placeholder="Paste topics or syllabus…"></textarea></div>
+    <div class="field"><label>Target WLU grade</label>
+      <div class="togrow" id="mc-target">
+        <button class="tog" onclick="tog('mc-target',this,'A+')">A+ (12.0)</button>
+        <button class="tog on" onclick="tog('mc-target',this,'A')">A (10.0–11.0)</button>
+        <button class="tog" onclick="tog('mc-target',this,'B+')">B+ (9.0)</button>
+      </div>
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="mc-gcal" checked style="width:auto;accent-color:var(--violet)">
+        <span style="color:var(--tll);font-weight:700">🔗 Auto-push spread schedule to Google Calendar</span>
+      </label>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:.5rem">
+      <button class="btn" style="flex:1" onclick="saveCourse()">Save & build plan →</button>
+      <button class="btng" onclick="closeM('addM')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- COURSE DETAIL MODAL -->
+<div class="moverlay" id="cdM">
+  <div class="modal" style="max-width:640px">
+    <div class="mhead"><div class="mtitle" id="cdTitle">Course</div><button class="mclose" onclick="closeM('cdM')">✕</button></div>
+    <div id="cdContent"></div>
+  </div>
+</div>
+
+<script>
+// ══ WLU 12-POINT GPA SCALE ══
+const WLU_GPA = [
+  {letter:'A+',min:90,max:100,pts:12.0,color:'#f0b429'},
+  {letter:'A', min:85,max:89, pts:11.0,color:'#f0b429'},
+  {letter:'A-',min:80,max:84, pts:10.0,color:'#ffd166'},
+  {letter:'B+',min:77,max:79, pts:9.0, color:'#2dd4bf'},
+  {letter:'B', min:73,max:76, pts:8.0, color:'#2dd4bf'},
+  {letter:'B-',min:70,max:72, pts:7.0, color:'#67e8f9'},
+  {letter:'C+',min:67,max:69, pts:6.0, color:'#8b5cf6'},
+  {letter:'C', min:63,max:66, pts:5.0, color:'#8b5cf6'},
+  {letter:'C-',min:60,max:62, pts:4.0, color:'#c4b5fd'},
+  {letter:'D+',min:57,max:59, pts:3.0, color:'#fb923c'},
+  {letter:'D', min:53,max:56, pts:2.0, color:'#fb923c'},
+  {letter:'D-',min:50,max:52, pts:1.0, color:'#fca5a5'},
+  {letter:'F', min:0, max:49, pts:0.0, color:'#fb7185'},
+];
+
+function pctToGPA(pct){
+  if(pct===null||pct===undefined)return null;
+  const row=WLU_GPA.find(r=>pct>=r.min&&pct<=r.max);
+  return row||WLU_GPA[WLU_GPA.length-1];
+}
+function pctToLetter(pct){const g=pctToGPA(pct);return g?g.letter:'—'}
+function pctToPoints(pct){const g=pctToGPA(pct);return g?g.pts:0}
+
+// Build GPA table
+function buildGPATable(){
+  const tbody=document.getElementById('gpaTableBody');
+  tbody.innerHTML=WLU_GPA.map((r,i)=>{
+    const isTarget=r.letter==='A'||r.letter==='A-'||r.letter==='A+';
+    const barW=Math.round(r.pts/12*100);
+    return`<tr class="${isTarget?'target-row':''}">
+      <td>${r.letter}</td>
+      <td>${r.min}–${r.max}%</td>
+      <td>${r.pts.toFixed(1)}</td>
+      <td>${isTarget?'<strong>TARGET</strong>':r.pts>=9?'Good':'—'}</td>
+      <td class="gpa-bar-cell"><div class="gpa-mini-bar" style="width:${barW}%;background:${r.color};height:4px;border-radius:100px"></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══ STATE ══
+let courses  = JSON.parse(localStorage.getItem('go4_courses')||'[]');
+let compLog  = JSON.parse(localStorage.getItem('go4_comp')||'[]');
+let qScores  = JSON.parse(localStorage.getItem('go4_scores')||'[]');
+let grades   = JSON.parse(localStorage.getItem('go4_grades')||'[]');
+let xp       = parseInt(localStorage.getItem('go4_xp')||'0');
+let pSess    = parseInt(localStorage.getItem('go4_pomo')||'0');
+let unlocked = JSON.parse(localStorage.getItem('go4_ach')||'[]');
+let calOff=0, ankiData=[], togState={}, compPts=0;
+let qArr=[], qCur=0, qOk=0, qAns=false, qMiss=[];
+let pTimer=null, pLeft=25*60, pRunning=false, pMode=25, pSessions=pSess;
+
+const COLORS=['#6d28d9','#0d9488','#e11d48','#f0b429','#0369a1','#ea580c','#7c3aed','#059669'];
+const STOPICS={
+  Finance:'NPV, IRR, WACC, CAPM, Capital Budgeting, TVM, Bond Valuation, Capital Structure, Risk & Return',
+  Accounting:'Debits & Credits, Balance Sheet, Income Statement, Cash Flow Statement, Revenue Recognition, Depreciation, FIFO vs LIFO, Financial Ratios, Journal Entries',
+  Marketing:'4Ps, STP, Brand Equity, Consumer Behaviour, Pricing Strategy, Distribution, Product Life Cycle',
+  Economics:'Supply & Demand, Elasticity, Market Structures, GDP, Inflation, Monetary Policy, Fiscal Policy, Aggregate Demand',
+  Statistics:'Hypothesis Testing, t-tests, ANOVA, Regression, Confidence Intervals, Normal Distribution, p-values',
+  Strategy:"Porter's 5 Forces, SWOT, BCG Matrix, Ansoff, Generic Strategies, Value Chain, Blue Ocean",
+  'Org Behaviour':"Maslow, Herzberg, Vroom Expectancy, Leadership Styles, Org Culture, Change Management, Motivation",
+  Anthropology:'Cultural Anthropology, Ethnography, Kinship Systems, Social Structure, Fieldwork Methods, Cultural Relativism',
+  Communications:'Rhetorical Analysis, Argumentation, Critical Thinking Frameworks, Presentation Skills, Business Writing',
+  Other:'Core concepts, Key definitions, Applied theory, Framework application, Case studies'
+};
+const ACHDEFS=[
+  {id:'first_course',icon:'📚',name:'First Step',desc:'Added first course',xp:50},
+  {id:'first_quiz',icon:'⚡',name:'Quiz Starter',desc:'Completed first quiz',xp:100},
+  {id:'quiz_80',icon:'🎯',name:'Sharp Shooter',desc:'Scored 80%+ (A territory)',xp:200},
+  {id:'quiz_100',icon:'💯',name:'Perfect Round',desc:'100% on a quiz',xp:400},
+  {id:'streak_3',icon:'🔥',name:'On Fire',desc:'3-day study streak',xp:150},
+  {id:'streak_7',icon:'🌟',name:'Week Warrior',desc:'7-day study streak',xp:500},
+  {id:'comp_80',icon:'✅',name:'Compliant',desc:'80+ compliance score',xp:100},
+  {id:'gcal_push',icon:'📅',name:'Synced',desc:'Pushed to Google Calendar',xp:150},
+  {id:'anki_gen',icon:'🃏',name:'Card Shark',desc:'Generated Anki deck',xp:100},
+  {id:'a_grade',icon:'🎓',name:'WLU A',desc:'Logged an A-grade assessment',xp:300},
+  {id:'pomo_4',icon:'🍅',name:'Pomodoro Pro',desc:'4 sessions in a day',xp:200},
+  {id:'gpa_10',icon:'🏆',name:'Dean\'s List Pace',desc:'GPA above 10.0',xp:500},
+];
+
+// ══ HELPERS ══
+function save(){localStorage.setItem('go4_courses',JSON.stringify(courses));localStorage.setItem('go4_comp',JSON.stringify(compLog));localStorage.setItem('go4_scores',JSON.stringify(qScores));localStorage.setItem('go4_grades',JSON.stringify(grades));localStorage.setItem('go4_xp',xp);localStorage.setItem('go4_pomo',pSessions);localStorage.setItem('go4_ach',JSON.stringify(unlocked))}
+function du(d){if(!d)return null;const dt=new Date(d);dt.setHours(23,59);return Math.ceil((dt-new Date())/86400000)}
+function sdn(du){if(!du)return 14;if(du<=4)return 4;if(du<=14)return 10;if(du<=30)return 21;return 42}
+function startD(ed,need){if(!ed)return null;const d=new Date(ed);d.setDate(d.getDate()-need);return d}
+function tog(rid,btn,val){document.querySelectorAll('#'+rid+' .tog').forEach(b=>b.classList.remove('on'));btn.classList.add('on');togState[rid]=val}
+function gt(rid,def){return togState[rid]||def}
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+function addXP(pts){xp+=pts;save();renderXP()}
+function unlock(id){
+  if(unlocked.includes(id))return;
+  const a=ACHDEFS.find(x=>x.id===id);if(!a)return;
+  unlocked.push(id);addXP(a.xp);save();
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:rgba(109,40,217,.92);backdrop-filter:blur(12px);border:1px solid rgba(196,181,253,.4);border-radius:var(--r);padding:.85rem 1.1rem;font-size:13px;color:#fff;animation:fadeUp .3s ease;box-shadow:0 10px 40px rgba(109,40,217,.4)';
+  t.innerHTML=`<strong>${a.icon} Achievement!</strong><br>${a.name} +${a.xp}XP`;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3500);
+}
+function renderXP(){const lv=Math.floor(xp/500)+1,cur=xp%500;document.getElementById('xpLv').textContent=lv;document.getElementById('xpC').textContent=cur;document.getElementById('xpBar').style.width=(cur/500*100)+'%'}
+
+// ══ GPA CALC ══
+function calcSemGPA(){
+  if(!grades.length)return null;
+  const courseGPAs={};
+  grades.forEach(g=>{
+    if(!courseGPAs[g.courseId])courseGPAs[g.courseId]=[];
+    courseGPAs[g.courseId].push(g);
+  });
+  let total=0,count=0;
+  Object.values(courseGPAs).forEach(cg=>{
+    const weighted=cg.reduce((s,g)=>s+(g.score*g.weight),0);
+    const totalW=cg.reduce((s,g)=>s+g.weight,0);
+    if(totalW>0){total+=pctToPoints(weighted/totalW);count++;}
+  });
+  return count>0?(total/count).toFixed(2):null;
+}
+function updateGPAWidgets(){
+  const gpa=calcSemGPA();
+  const gpaNum=gpa?parseFloat(gpa):null;
+  ['sbGPA','ds-gpa','semGPA'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=gpa||'—'});
+  ['sbGPABar','semGPABar'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.width=gpaNum?(gpaNum/12*100)+'%':'0%'});
+  if(gpaNum>=10)unlock('gpa_10');
+}
+
+// ══ NAV ══
+const NTITLES={dashboard:'Dashboard',courses:'Courses',gpa:'GPA Tracker',calendar:'Calendar',timeblock:'Weekly Study Blocks',gcalsync:'Google Calendar',pomodoro:'Pomodoro Timer',compliance:'Daily Log',quiz:'Quiz Engine',predictor:'Exam Predictor',anki:'Flashcards',progress:'Progress',achievements:'Achievements'};
+function nav(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('p-'+id);if(p)p.classList.add('active');
+  const b=document.querySelector(`.sb-item[onclick="nav('${id}')"]`);if(b)b.classList.add('active');
+  document.getElementById('tbTitle').textContent=NTITLES[id]||id;
+  if(id==='calendar')renderCal();
+  if(id==='timeblock')renderWeeklyBlocks();
+  if(id==='gcalsync'||id==='quiz'||id==='predictor'||id==='anki')populateSels();
+  if(id==='progress')renderProgress();
+  if(id==='achievements')renderAch();
+  if(id==='compliance')renderC30();
+  if(id==='gpa'){buildGPATable();renderGradeCards();updateGPAWidgets()}
+}
+
+// ══ SAVE COURSE ══
+function saveCourse(){
+  const name=document.getElementById('mc-name').value.trim();
+  const code=document.getElementById('mc-code').value.trim();
+  if(!name){alert('Enter course name.');return}
+  const subj=gt('mc-subj','Accounting');
+  const c={id:Date.now(),code:code||'CRSE',name,examDate:document.getElementById('mc-exam').value,hours:parseFloat(document.getElementById('mc-hrs').value)||1.5,subject:subj,examType:gt('mc-etype','Written'),topics:document.getElementById('mc-topics').value.trim()||STOPICS[subj]||'',target:gt('mc-target','A'),color:COLORS[courses.length%COLORS.length],daysLogged:[],quizAvg:null,plan:null,gcalSynced:false};
+  courses.push(c);save();closeM('addM');renderAll();genPlan(c);
+  unlock('first_course');
+}
+
+// ══ RENDER ALL ══
+function renderAll(){renderDash();renderCList();updateStats();populateSels();document.getElementById('cBadge').textContent=courses.length;renderWDots();renderXP();updateGPAWidgets()}
+
+function renderDash(){
+  const al=document.getElementById('dAlerts');
+  const urg=courses.filter(c=>du(c.examDate)!==null&&du(c.examDate)<=3&&du(c.examDate)>0);
+  al.innerHTML=urg.map(c=>`<div class="alert danger">⚠ ${c.code} exam in ${du(c.examDate)} day${du(c.examDate)>1?'s':''}! Sprint mode now.</div>`).join('');
+  const el=document.getElementById('dCourses');
+  if(!courses.length){el.innerHTML='<div class="cbody" style="color:var(--t4);padding:.75rem 0">No courses — click "+ Add Course"</div>';return}
+  el.innerHTML=courses.map(c=>{
+    const d=du(c.examDate),need=sdn(d),sd=startD(c.examDate,need),prog=Math.min((c.daysLogged?.length||0)/need*100,100);
+    const gpaTarget=c.target==='A+'?'12.0':c.target==='A'?'10.0–11.0':'9.0';
+    return`<div class="ccrd" onclick="showCD(${c.id})" style="border-color:${c.color}22">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${c.color},${c.color}66)"></div>
+      <div class="cccode">${c.code}</div>
+      <div class="ccname">${c.name}</div>
+      <div class="ccdays">${d!==null?(d>0?d+'d':d===0?'TODAY!':'done'):'—'}</div>
+      <div class="ccmeta">
+        <span class="cctag">${c.subject}</span>
+        <span class="cctag">${c.examType}</span>
+        <span class="cctag" style="color:${c.color}">▶ ${sd?sd.toLocaleDateString('en-CA',{month:'short',day:'numeric'}):'—'}</span>
+        <span class="gpa-chip" style="background:rgba(240,180,41,.1);border-color:rgba(240,180,41,.3);color:var(--gold3)">🎓 ${c.target} (${gpaTarget})</span>
+        ${c.gcalSynced?'<span class="gpa-chip" style="background:rgba(13,148,136,.12);border-color:rgba(13,148,136,.3);color:var(--tll)">📅 GCal</span>':''}
+      </div>
+      <div class="ccpw"><div class="ccp" style="width:${prog}%;background:${c.color}"></div></div>
+    </div>`;
+  }).join('');
+  const active=courses.filter(c=>c.examDate&&du(c.examDate)>0&&du(c.examDate)<=sdn(du(c.examDate)));
+  const tf=document.getElementById('dToday');
+  if(active.length){const c=active[0];tf.innerHTML=`<div class="card border-violet" style="border-color:${c.color}44"><div style="font-size:15px;font-weight:700;color:${c.color};margin-bottom:.35rem">${c.code} — ${c.name}</div><div class="cbody">${c.plan?.todayFocus||'Use Quiz Engine to practice, then log your session.'}</div><div style="display:flex;gap:7px;margin-top:.75rem;flex-wrap:wrap"><button class="btn btnsm" onclick="nav('quiz')">⚡ Quiz</button><button class="btng" onclick="nav('pomodoro')">🍅 Timer</button><button class="btn-gcal" onclick="nav('gcalsync')">🔗 GCal</button></div></div>`;}
+  else tf.innerHTML='<div class="cardsm cbody" style="color:var(--t4)">Add a course with an exam date to see today\'s focus.</div>';
+}
+
+function renderCList(){
+  const el=document.getElementById('cList');
+  if(!courses.length){el.innerHTML='<div style="font-size:13px;color:var(--t4);text-align:center;padding:2rem;grid-column:1/-1">No courses yet.</div>';return}
+  el.innerHTML=courses.map(c=>{
+    const d=du(c.examDate),need=sdn(d),sd=startD(c.examDate,need),prog=Math.min((c.daysLogged?.length||0)/need*100,100);
+    return`<div class="ccrd" onclick="showCD(${c.id})">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${c.color},${c.color}66)"></div>
+      <div class="cccode">${c.code}</div><div class="ccname">${c.name}</div>
+      <div class="ccdays">${d!==null?(d>0?d+'d':d===0?'TODAY':'past'):'—'}</div>
+      <div class="ccmeta"><span class="cctag">${c.subject}</span><span class="cctag">${c.examType}</span><span class="cctag" style="color:${c.color}">▶ ${sd?sd.toLocaleDateString('en-CA',{month:'short',day:'numeric'}):'—'}</span></div>
+      <div class="ccpw"><div class="ccp" style="width:${prog}%;background:${c.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(){
+  document.getElementById('ds-c').textContent=courses.length;
+  document.getElementById('ds-ot').textContent=courses.length?courses.filter(c=>c.quizAvg>=70).length+'/'+courses.length:'—';
+  const up=courses.filter(c=>du(c.examDate)>0).sort((a,b)=>du(a.examDate)-du(b.examDate));
+  if(up.length){document.getElementById('ds-ne').textContent=du(up[0].examDate)+'d';document.getElementById('ds-nn').textContent=up[0].code}
+  const gpa=calcSemGPA();
+  document.getElementById('ds-gpa').textContent=gpa||'—';
+  const avg=qScores.length?Math.round(qScores.reduce((a,b)=>a+b,0)/qScores.length):null;
+  const ps=document.getElementById('projScore');ps.textContent=avg?avg+'%':'—';
+  if(avg)ps.style.color=avg>=85?'var(--gold2)':avg>=70?'var(--tll)':'var(--rll)';
+}
+function calcStreak(){let s=0;for(let i=0;i<60;i++){const d=new Date();d.setDate(d.getDate()-i);if(compLog.find(l=>l.date===d.toDateString()))s++;else break}return s}
+function renderWDots(){const el=document.getElementById('wDots');if(!el)return;el.innerHTML=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const logged=compLog.find(l=>l.date===d.toDateString()),today=d.toDateString()===new Date().toDateString();return`<div class="sdot${logged?' done':''}${today?' today':''}"></div>`}).join('')}
+
+// ══ GRADES ══
+function addGrade(){
+  const cid=document.getElementById('gradeCourse').value;
+  const assess=document.getElementById('gradeAssess').value.trim();
+  const score=parseFloat(document.getElementById('gradeScore').value);
+  const weight=parseFloat(document.getElementById('gradeWeight').value);
+  if(!cid||!assess||isNaN(score)||isNaN(weight)){alert('Fill in all grade fields.');return}
+  grades.push({id:Date.now(),courseId:parseInt(cid),assess,score,weight});
+  save();renderGradeCards();updateGPAWidgets();
+  if(score>=80)unlock('a_grade');
+  document.getElementById('gradeAssess').value='';document.getElementById('gradeScore').value='';
+}
+function renderGradeCards(){
+  const el=document.getElementById('gradeCards');if(!el)return;
+  if(!grades.length){el.innerHTML='<div class="cbody" style="color:var(--t4);padding:.5rem 0">No grades logged yet.</div>';return}
+  el.innerHTML=grades.map(g=>{
+    const c=courses.find(x=>x.id===g.courseId);
+    const letter=pctToLetter(g.score);
+    const gpaRow=pctToGPA(g.score);
+    return`<div class="cardsm" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--t1)">${c?c.code:'?'} — ${g.assess}</div>
+        <div style="font-size:11px;color:var(--t3)">${g.score}% · Weight: ${g.weight}%</div>
+      </div>
+      <div class="gpa-chip" style="background:${gpaRow.color}22;border-color:${gpaRow.color}55;color:${gpaRow.color}">${letter} (${gpaRow.pts.toFixed(1)})</div>
+    </div>`;
+  }).join('');
+}
+function populateGradeCourse(){
+  const sel=document.getElementById('gradeCourse');if(!sel)return;
+  sel.innerHTML='<option value="">Select course…</option>'+courses.map(c=>`<option value="${c.id}">${c.code} — ${c.name}</option>`).join('');
+}
+
+// ══ COMPLIANCE ══
+function tc(el){el.classList.toggle('done');el.querySelector('.cibox').textContent=el.classList.contains('done')?'✓':'';calcPts()}
+function calcPts(){
+  let pts=0;document.querySelectorAll('.ci.done').forEach(i=>{pts+=parseInt(i.querySelector('.cipts').textContent)||10});
+  pts=Math.min(pts,100);compPts=pts;
+  ['dCS','csFull'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=pts+'/100'});
+  document.getElementById('sbComp').textContent=pts+'/100';
+  const fb=document.getElementById('cFB');
+  if(fb){const msg=pts>=80?'✓ On track for A (10.0 GPA)':pts>=60?'Almost — 2 more items to hit 80+':'Below target';fb.textContent=msg;fb.style.color=pts>=80?'var(--tll)':pts>=60?'var(--gold3)':'var(--rll)'}
+}
+function logDay(){
+  const today=new Date().toDateString();
+  compLog=compLog.filter(l=>l.date!==today);compLog.push({date:today,score:compPts});
+  courses.forEach(c=>{if(!c.daysLogged)c.daysLogged=[];if(!c.daysLogged.includes(today))c.daysLogged.push(today)});
+  addXP(compPts);save();renderAll();renderC30();
+  if(compPts>=80)unlock('comp_80');
+  const s=calcStreak();if(s>=3)unlock('streak_3');if(s>=7)unlock('streak_7');
+  alert(`Day logged! ${compPts}/100${compPts>=80?' — A-grade track ✓':' — aim for 80+ tomorrow'}`);
+}
+function renderC30(){
+  const el=document.getElementById('c30');if(!el)return;
+  el.innerHTML=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);const log=compLog.find(l=>l.date===d.toDateString()),sc=log?log.score:0,col=sc>=80?'var(--teal)':sc>=60?'var(--gold)':sc>0?'var(--rose)':'rgba(255,255,255,.04)';return`<div title="${d.toLocaleDateString()}: ${sc}pts" style="width:18px;height:18px;border-radius:3px;background:${col};opacity:${sc?1:.35}"></div>`}).join('');
+}
+
+// ══ COURSE DETAIL ══
+function showCD(id){
+  const c=courses.find(x=>x.id===id);if(!c)return;
+  document.getElementById('cdTitle').textContent=c.code+' — '+c.name;
+  const d=du(c.examDate),need=sdn(d),sd=startD(c.examDate,need);
+  const gpaTarget=c.target==='A+'?'12.0':c.target==='A'?'10.0–11.0':'9.0';
+  document.getElementById('cdContent').innerHTML=`
+    <div class="g3" style="margin-bottom:1rem">
+      <div class="stat rose" style="padding:.75rem"><div class="stat-label">Days left</div><div class="stat-val" style="font-size:22px">${d!==null?d:'—'}</div></div>
+      <div class="stat teal" style="padding:.75rem"><div class="stat-label">Study start</div><div class="stat-val" style="font-size:16px">${sd?sd.toLocaleDateString('en-CA',{month:'short',day:'numeric'}):'—'}</div></div>
+      <div class="stat gold" style="padding:.75rem"><div class="stat-label">GPA target</div><div class="stat-val" style="font-size:18px">${gpaTarget}</div></div>
+    </div>
+    <div class="alert ${d===null?'info':d>need?'success':d>0?'warn':'danger'}">
+      ${d===null?'Add an exam date to get your personalised schedule.':d>need?`✓ Start on ${sd?.toLocaleDateString('en-CA',{month:'long',day:'numeric'})} — ${d-need} buffer days available.`:d>0?`⚠ You should have started ${need-d} day(s) ago. Compress the plan — 90 min/day, no misses.`:'Exam day/past.'}
+    </div>
+    <div class="sec">Study plan</div>
+    <div id="cdPlan">${c.plan?renderPlanHTML(c.plan):'<span class="spin"></span> Generating…'}</div>
+    <div class="sec">Topics</div>
+    <div class="tags">${(c.topics||'').split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem;flex-wrap:wrap">
+      <button class="btn btnsm" onclick="closeM('cdM');nav('quiz')">⚡ Quiz</button>
+      <button class="btn-gcal" onclick="closeM('cdM');nav('gcalsync')">🔗 Push to GCal</button>
+      <button class="btng" onclick="closeM('cdM');nav('anki')">🃏 Flashcards</button>
+      <button class="btn-danger" onclick="delCourse(${id})">Delete</button>
+    </div>`;
+  openM('cdM');
+  if(!c.plan)genPlan(c,true);
+}
+function renderPlanHTML(plan){
+  if(!plan?.phases)return'<div style="color:var(--t4);font-size:13px">Generating…</div>';
+  return plan.phases.map(ph=>`<div class="cardsm" style="margin-bottom:7px"><div style="font-size:13px;font-weight:700;color:var(--t1)">${ph.name} <span style="color:var(--t3);font-weight:400">${ph.weeks||''}</span></div><div style="font-size:12px;color:var(--t2);margin:.2rem 0">${ph.goal}</div>${(ph.keyTasks||[]).map(t=>`<div style="font-size:11px;color:var(--t3)">• ${t}</div>`).join('')}</div>`).join('')+(plan.examTraps?`<div class="sec" style="margin-top:.75rem">Common exam traps</div>${plan.examTraps.map((t,i)=>`<div style="font-size:12px;color:var(--t2);padding:.3rem 0;border-bottom:1px solid rgba(109,40,217,.07)">${i+1}. ${t}</div>`).join('')}`:``);
+}
+function delCourse(id){if(!confirm('Delete?'))return;courses=courses.filter(c=>c.id!==id);grades=grades.filter(g=>g.courseId!==id);save();renderAll();closeM('cdM')}
+
+// ══ AI ══
+async function ai(sys,user,max=1500){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:max,system:sys,messages:[{role:'user',content:user}]})});
+  const d=await r.json();return d.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+}
+async function genPlan(c,updateModal=false){
+  try{
+    const d=du(c.examDate)||14,tf=d<=4?'2-4 days':d<=14?'1-2 weeks':d<=30?'3-4 weeks':'full semester';
+    const raw=await ai('Return ONLY valid JSON, no markdown.',`Study plan for ${c.name} (${c.subject}) at Wilfrid Laurier University. Topics: ${c.topics}. Time: ${tf}. Max hours/day: ${c.hours}. Exam type: ${c.examType}. Target grade: ${c.target}.
+JSON: {"phases":[{"name":"str","weeks":"str","goal":"str","keyTasks":["t1","t2","t3"]}],"examTraps":["trap1","trap2","trap3"],"todayFocus":"one sentence on what to do today","scoreProjection":{"sprint":"75%","full":"93%"}}
+Make phases specific to WLU BBA topics. Study spread across days, never more than ${c.hours}h on one day. Exam traps specific to this subject.`,2000);
+    const plan=JSON.parse(raw);
+    const idx=courses.findIndex(x=>x.id===c.id);if(idx>=0){courses[idx].plan=plan;save()}
+    if(updateModal){const el=document.getElementById('cdPlan');if(el)el.innerHTML=renderPlanHTML(plan)}
+    renderDash();
+  }catch(e){console.error(e)}
+}
+
+// ══ WEEKLY TIME BLOCKS ══
+function renderWeeklyBlocks(){
+  const el=document.getElementById('weeklyBlocks');if(!el)return;
+  const now=new Date();
+  const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  // WLU class schedule awareness
+  const classBlocks={
+    1:[{s:8.5,e:9.83,label:'EC140 LH1001'},{s:14.5,e:15.83,label:'EC140'}],// Mon
+    2:[{s:8.5,e:9.83,label:'BU121'},{s:17.5,e:18.83,label:'BU121 Lab'}],   // Tue
+    3:[{s:14.5,e:15.83,label:'EC140'}],                                        // Wed
+    4:[{s:8.5,e:9.83,label:'BU121'},{s:17.5,e:18.83,label:'BU121 Lab'}],   // Thu
+    5:[{s:14.5,e:15.83,label:'EC140'}],                                        // Fri
+  };
+  const studyTimes={0:'14:00',1:'11:00',2:'10:00',3:'11:00',4:'10:00',5:'11:00',6:'10:00'};
+  const activeC=courses.filter(c=>c.examDate&&du(c.examDate)>0).sort((a,b)=>du(a.examDate)-du(b.examDate));
+
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(now);d.setDate(now.getDate()-now.getDay()+i);
+    const dow=d.getDay();
+    const isToday=d.toDateString()===now.toDateString();
+    const isPast=d<now&&!isToday;
+    const classes=classBlocks[dow]||[];
+    const course=activeC[i%Math.max(activeC.length,1)];
+
+    html+=`<div class="cardsm" style="margin-bottom:8px;opacity:${isPast?'.45':'1'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+        <div style="font-size:12px;font-weight:700;color:${isToday?'var(--gold2)':'var(--t2)'}">${dayNames[dow]} ${d.getDate()}</div>
+        ${isToday?'<span style="font-size:10px;font-weight:700;color:var(--gold2);background:rgba(240,180,41,.15);border:1px solid rgba(240,180,41,.3);border-radius:100px;padding:1px 8px">Today</span>':''}
+      </div>`;
+
+    classes.forEach(cl=>{
+      html+=`<div style="display:flex;gap:7px;align-items:center;margin-bottom:4px">
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t4);min-width:65px">${Math.floor(cl.s)}:${cl.s%1?'30':'00'}–${Math.floor(cl.e)}:${cl.e%1?'50':'00'}</div>
+        <div style="flex:1;background:rgba(13,148,136,.12);border-left:2px solid var(--teal);border-radius:0 3px 3px 0;padding:3px 7px;font-size:11px;color:var(--tll);font-weight:600">${cl.label}</div>
+      </div>`;
+    });
+
+    if(course&&!isPast){
+      const h=course.hours<=1?'30 min':'60 min';
+      html+=`<div style="display:flex;gap:7px;align-items:center;margin-top:3px">
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--t4);min-width:65px">${studyTimes[dow]}</div>
+        <div style="flex:1;background:rgba(109,40,217,.15);border-left:2px solid var(--vl);border-radius:0 3px 3px 0;padding:3px 7px;font-size:11px;color:var(--vll);font-weight:600">📚 ${course.code} · ${h}</div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ══ GCAL ══
+function populateSels(){
+  ['gcalCourse','qSel','predSel','ankiSel'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const v=el.value;
+    el.innerHTML='<option value="">Select course…</option>'+courses.map(c=>`<option value="${c.id}">${c.code} — ${c.name}</option>`).join('');
+    el.value=v;
+  });
+  populateGradeCourse();
+}
+async function pushToGCal(){
+  const sel=document.getElementById('gcalCourse').value;
+  const c=courses.find(x=>x.id==sel);
+  if(!c){alert('Select a course first.');return}
+  if(!c.examDate){alert('Add an exam date to this course first.');return}
+  const btn=document.getElementById('gcalBtn');btn.disabled=true;btn.textContent='Preparing events…';
+  const st=document.getElementById('gcalStatus');
+  const spread=gt('gcalSpread','medium');
+  const remind=parseInt(gt('gcalRemind','30'));
+  const d=du(c.examDate),need=sdn(d);
+  const sd=startD(c.examDate,need);
+  let html=`<div class="alert success" style="margin-bottom:.75rem">✅ Schedule for <strong>${c.name}</strong> ready to push — spread across ${need} days (max ${c.hours}h/day)</div>`;
+  // Show preview of what will be pushed
+  const days=Math.min(need,10);
+  const blocks=[];
+  for(let i=0;i<days;i++){const d2=new Date(sd);d2.setDate(sd.getDate()+i);const dow=d2.getDay();if(dow!==0)blocks.push({date:d2.toLocaleDateString('en-CA',{month:'short',day:'numeric'}),day:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow]})}
+  html+=`<div class="sec">Study blocks to push</div>`;
+  blocks.slice(0,6).forEach((b,i)=>{
+    html+=`<div class="gcal-row" style="margin-bottom:6px"><div class="gcal-row-ico">📚</div><div class="gcal-row-body"><div class="gcal-row-title">${c.code} Study Block ${i+1}</div><div class="gcal-row-date">${b.date} (${b.day}) · 90 min</div></div><div class="status-pending">Ready</div></div>`;
+  });
+  html+=`<div style="font-size:12px;color:var(--t3);margin-top:.75rem">To push these events live, tell Claude: "Push my ${c.code} study schedule to Google Calendar" — Claude will create all events directly in your calendar with the correct times, working around your WLU classes.</div>`;
+  st.innerHTML=html;
+  const idx=courses.findIndex(x=>x.id==sel);if(idx>=0){courses[idx].gcalSynced=true;save()}
+  unlock('gcal_push');renderAll();
+  btn.disabled=false;btn.textContent='🔗 Push spread schedule →';
+}
+
+// ══ CALENDAR ══
+function cm(d){calOff+=d;renderCal()}
+function renderCal(){
+  const now=new Date(),t=new Date(now.getFullYear(),now.getMonth()+calOff,1);
+  document.getElementById('calLbl').textContent=t.toLocaleDateString('en-CA',{month:'long',year:'numeric'});
+  document.getElementById('calH').innerHTML=['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="caldh">${d}</div>`).join('');
+  const allEvs=[];
+  courses.forEach(c=>{
+    if(!c.examDate)return;
+    const d=du(c.examDate),need=sdn(d),sd=startD(c.examDate,need);
+    if(sd)allEvs.push({date:sd.toISOString().slice(0,10),type:'start',label:`▶${c.code}`});
+    allEvs.push({date:c.examDate,type:'exam',label:`📋${c.code}`});
+    const mock=new Date(c.examDate);mock.setDate(mock.getDate()-3);
+    allEvs.push({date:mock.toISOString().slice(0,10),type:'mock',label:`🎯${c.code}`});
+    [7,14].forEach(r=>{const rv=new Date(c.examDate);rv.setDate(rv.getDate()-r);allEvs.push({date:rv.toISOString().slice(0,10),type:'review',label:`🔁${c.code}`})});
+  });
+  // Known GCal events
+  [{date:'2026-03-17',type:'block',label:'BU127 Blk1'},{date:'2026-03-18',type:'block',label:'BU127 Blk2'},{date:'2026-03-20',type:'mock',label:'BU127 Mock'},{date:'2026-03-21',type:'exam',label:'BU127 MT2'}].forEach(e=>allEvs.push(e));
+  // Classes
+  const first=t.getDay(),days=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();
+  let html='';for(let i=0;i<first;i++)html+='<div></div>';
+  for(let dd=1;dd<=days;dd++){
+    const dt=new Date(t.getFullYear(),t.getMonth(),dd);
+    const ds=dt.toISOString().slice(0,10),today=dt.toDateString()===now.toDateString();
+    const de=allEvs.filter(e=>e.date===ds);
+    const dow=dt.getDay();
+    const hasClass=[1,2,3,4,5].includes(dow);
+    if(hasClass)de.push({type:'class',label:dow===1||dow===3||dow===5?'EC140':dow===2||dow===4?'BU121':''});
+    html+=`<div class="cald${today?' today':''}${de.length?' has-ev':''}"><div class="calnum">${dd}</div>${de.slice(0,2).map(e=>`<div class="calev ${e.type}">${e.label}</div>`).join('')}</div>`;
+  }
+  document.getElementById('calG').innerHTML=html;
+  const uel=document.getElementById('upEv');
+  const up=allEvs.filter(e=>new Date(e.date)>=now).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,5);
+  uel.innerHTML=up.map(e=>{const col={start:'var(--tll)',review:'var(--gold3)',exam:'var(--rll)',mock:'var(--sll)',block:'var(--ell)',class:'var(--vll)'}[e.type]||'var(--t3)';return`<div class="cardsm" style="border-left:2px solid ${col};margin-bottom:7px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:700">${e.label}</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:${col}">${new Date(e.date).toLocaleDateString('en-CA',{month:'short',day:'numeric'})}</div></div>`}).join('');
+}
+
+// ══ QUIZ ══
+function startQ(){const sel=document.getElementById('qSel').value,custom=document.getElementById('qCustom').value.trim(),c=courses.find(x=>x.id==sel);if(!custom&&!c){alert('Select course or enter topics.');return}qArr=(custom||(c?.topics||'')).split(',').map(t=>t.trim()).filter(Boolean);qArr.cn=c?.name||'WLU BBA';qCur=0;qOk=0;qAns=false;qMiss=[];document.getElementById('qSetup').style.display='none';document.getElementById('qActive').style.display='block';document.getElementById('qDone').style.display='none';loadQ();unlock('first_quiz')}
+async function loadQ(){const t=qArr[Math.floor(Math.random()*qArr.length)];qAns=false;document.getElementById('qTag').textContent=t;document.getElementById('qTxt').innerHTML='<span class="spin"></span> Generating…';document.getElementById('qOpts').innerHTML='';document.getElementById('qExp').style.display='none';document.getElementById('qNxt').style.display='none';updQP();
+  try{const raw=await ai('Return ONLY valid JSON.',`One ${gt('diffR','Intermediate')}-level exam question on "${t}" for a WLU BBA student in ${qArr.cn}. {"topic":"${t}","question":"text","options":["A","B","C","D"],"correct":0,"explanation":"2-3 sentences explaining correct + why others wrong"}. For quant include calculations. correct=zero-based.`,700);const q=JSON.parse(raw);qArr._q=qArr._q||[];qArr._q.push(q);document.getElementById('qTxt').textContent=q.question;document.getElementById('qOpts').innerHTML=q.options.map((o,i)=>`<button class="qopt" onclick="ansQ(${i})">${o}</button>`).join('');}catch(e){document.getElementById('qTxt').textContent='Error — try again.'}}
+function ansQ(i){if(qAns)return;qAns=true;const q=(qArr._q||[])[qCur];if(!q)return;document.querySelectorAll('.qopt').forEach(b=>b.disabled=true);const opts=document.querySelectorAll('.qopt');if(i===q.correct){opts[i].classList.add('correct');qOk++;}else{opts[i].classList.add('wrong');opts[q.correct].classList.add('correct');qMiss.push(q);}const ex=document.getElementById('qExp');ex.textContent=q.explanation;ex.style.display='block';document.getElementById('qNxt').style.display='inline-block';updQP()}
+function updQP(){const total=parseInt(gt('qnR','10'));document.getElementById('qPL').textContent=`${qCur+1}/${total}`;document.getElementById('qPB').style.width=Math.max(Math.round(qCur/total*100),4)+'%';document.getElementById('qPR').textContent=`${qOk} ✓`}
+function nQ(){qCur++;if(qCur>=(parseInt(gt('qnR','10')))){showQD();return}loadQ()}
+function showQD(){document.getElementById('qActive').style.display='none';document.getElementById('qDone').style.display='block';const total=parseInt(gt('qnR','10')),pct=Math.round(qOk/total*100);qScores.push(pct);addXP(pct>=80?100:pct>=65?50:20);const sel=document.getElementById('qSel').value,idx=courses.findIndex(c=>c.id==sel);if(idx>=0){courses[idx].quizAvg=courses[idx].quizAvg?Math.round((courses[idx].quizAvg+pct)/2):pct}save();updateStats();if(pct>=80)unlock('quiz_80');if(pct===100)unlock('quiz_100');document.getElementById('dPct').textContent=pct+'%';document.getElementById('dPct').className='dpct '+(pct>=85?'good':pct>=65?'mid':'bad');document.getElementById('dSub').textContent=`${qOk} correct of ${total} · ${pctToLetter(pct)} (${pctToPoints(pct).toFixed(1)} GPA pts)`;const v=document.getElementById('dVerd');if(pct>=85){v.className='vcrd vcg';v.textContent='A territory — on track ✓'}else if(pct>=70){v.className='vcrd vcm';v.textContent='B+ territory — keep pushing'}else{v.className='vcrd vcb';v.textContent='Re-study and retry'}document.getElementById('dBreak').innerHTML=qMiss.length?`<div class="sec">Missed questions</div>`+qMiss.map(q=>`<div style="font-size:12px;color:var(--t2);padding:.35rem 0;border-bottom:1px solid rgba(109,40,217,.08)"><strong style="color:var(--vll)">${q.topic}:</strong> ${q.question}</div>`).join(''):''}
+function resetQ(){if(qArr._q)qArr._q=[];qCur=0;qOk=0;qAns=false;qMiss=[];document.getElementById('qSetup').style.display='block';document.getElementById('qActive').style.display='none';document.getElementById('qDone').style.display='none'}
+
+// ══ PREDICTOR ══
+async function runPred(){const txt=document.getElementById('predTxt').value.trim();if(!txt){alert('Paste content first.');return}const sel=document.getElementById('predSel').value,c=courses.find(x=>x.id==sel),mode=gt('predMode','lesson'),btn=document.getElementById('predBtn');btn.disabled=true;btn.textContent='Analyzing…';document.getElementById('predOut').style.display='none';
+  try{const prompt=mode==='lesson'?`Predict exam questions from these WLU lecture notes. Course: ${c?.name||'WLU'}. Return JSON: {"predictedQuestions":[{"question":"str","confidence":"high|medium|low","type":"str","reasoning":"str"}],"keyConcepts":["c1","c2","c3","c4","c5"],"studySequence":["s1","s2","s3"]} 6 questions. Notes: ${txt.slice(0,3000)}`:`Analyze past WLU exam. Course: ${c?.name||'WLU'}. Return JSON: {"topicFrequency":[{"topic":"str","pct":number}],"predictedQuestions":[{"question":"str","confidence":"high|medium|low","reasoning":"str"}],"studyPriority":["p1","p2","p3"]} Exam: ${txt.slice(0,3000)}`;
+  const raw=await ai('Return ONLY valid JSON.',prompt,1500),r=JSON.parse(raw);
+  let html='';
+  if(r.predictedQuestions)html+=`<div class="sec">Predicted questions</div>`+r.predictedQuestions.map(q=>`<div class="predq"><div class="pconf ${q.confidence}">${q.confidence}${q.type?' · '+q.type:''}</div><div class="ptxt">${q.question}</div><div class="preason">${q.reasoning||''}</div></div>`).join('');
+  if(r.topicFrequency)html+=`<div class="sec">Topic frequency</div><div class="card">`+r.topicFrequency.map(t=>`<div class="frow"><div class="fname">${t.topic}</div><div class="fwrap"><div class="ffill" style="width:${t.pct}%"></div></div><div class="fpct">${t.pct}%</div></div>`).join('')+'</div>';
+  if(r.keyConcepts)html+=`<div class="sec">Key concepts</div><div class="tags" style="margin-bottom:.75rem">${r.keyConcepts.map(c=>`<span class="tag">${c}</span>`).join('')}</div>`;
+  const items=r.studyPriority||r.studySequence||[];
+  if(items.length)html+=`<div class="sec">Priorities</div><div class="card">`+items.map((s,i)=>`<div style="display:flex;gap:10px;margin-bottom:.4rem"><span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--t4);min-width:16px">${i+1}.</span><span style="font-size:13px;color:var(--t2)">${s}</span></div>`).join('')+'</div>';
+  document.getElementById('predOut').innerHTML=html;document.getElementById('predOut').style.display='block';}catch(e){alert('Error — try again.')}
+  btn.disabled=false;btn.textContent='🔮 Analyze & predict →'}
+
+// ══ ANKI ══
+async function genAnki(){const sel=document.getElementById('ankiSel').value,extra=document.getElementById('ankiExtra').value.trim(),c=courses.find(x=>x.id==sel);if(!extra&&!c){alert('Select course.');return}const topics=extra||(c?.topics||''),btn=document.getElementById('ankiBtn');btn.disabled=true;btn.textContent='Generating…';document.getElementById('ankiOut').style.display='none';
+  try{const raw=await ai('Return ONLY a valid JSON array.',`18-20 Anki flashcards for WLU student studying: ${topics}. Course: ${c?.name||'WLU BBA'}. Array: [{"front":"Q","back":"Concise (1-2 sentences max)","topic":"topic"}]. Mix 40% definition, 30% formula, 30% application. Backs concise for rapid review.`,2000);ankiData=JSON.parse(raw);document.getElementById('ankiCards').innerHTML=ankiData.map(card=>`<div class="ankcard" onclick="this.classList.toggle('flipped')"><div class="anktopic">${card.topic||''}</div><div class="ankfront">${card.front}</div><div class="ankback">${card.back}</div></div>`).join('');document.getElementById('ankiOut').style.display='block';unlock('anki_gen');}catch(e){alert('Error — try again.')}btn.disabled=false;btn.textContent='🃏 Generate deck →'}
+function copyAnki(){navigator.clipboard.writeText(ankiData.map(c=>`${c.front};${c.back}`).join('\n')).then(()=>alert('Copied! Anki: File → Import → semicolon separator.'))}
+function shuffleAnki(){ankiData.sort(()=>Math.random()-.5);document.getElementById('ankiCards').innerHTML=ankiData.map(c=>`<div class="ankcard" onclick="this.classList.toggle('flipped')"><div class="anktopic">${c.topic||''}</div><div class="ankfront">${c.front}</div><div class="ankback">${c.back}</div></div>`).join('')}
+
+// ══ PROGRESS ══
+function renderProgress(){const el=document.getElementById('pChart');if(!qScores.length){el.innerHTML='<div style="font-size:13px;color:var(--t4);padding:.5rem">Take quizzes to see chart.</div>';return}const last=qScores.slice(-15);document.getElementById('pN').textContent=last.length;el.innerHTML=last.map(s=>{const h=Math.max(Math.round(s/100*120),4),col=s>=85?'var(--teal)':s>=70?'var(--gold)':'var(--rose)';return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px"><div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--t3)">${s}%</div><div style="font-size:9px;color:${col}">${pctToLetter(s)}</div><div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0;opacity:.8;min-width:14px"></div></div>`}).join('');
+const pc=document.getElementById('pCourses');pc.innerHTML=courses.map(c=>{const qa=c.quizAvg,letter=qa?pctToLetter(qa):null,pts=qa?pctToPoints(qa):null,gpaRow=qa?pctToGPA(qa):null;return`<div class="cardsm" style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem"><div style="font-size:13px;font-weight:700">${c.code}</div><div style="display:flex;align-items:center;gap:8px">${qa!==null&&qa!==undefined?`<span class="gpa-chip" style="background:${gpaRow.color}22;border-color:${gpaRow.color}55;color:${gpaRow.color}">${letter} (${pts.toFixed(1)})</span>`:'<span style="font-size:12px;color:var(--t4)">No quizzes</span>'}</div></div>${qa!==null&&qa!==undefined?`<div style="height:3px;background:rgba(255,255,255,.04);border-radius:100px;overflow:hidden"><div style="height:3px;border-radius:100px;background:${gpaRow.color};width:${qa}%;transition:width .6s"></div></div>`:''}</div>`}).join('')||'<div style="font-size:13px;color:var(--t4)">Add courses to track.</div>'}
+
+// ══ ACHIEVEMENTS ══
+function renderAch(){document.getElementById('achGrid').innerHTML=ACHDEFS.map(a=>`<div class="ach${unlocked.includes(a.id)?'':' achlk'}"><div class="achico">${a.icon}</div><div><div class="achn">${a.name}</div><div class="achd">${a.desc} · +${a.xp}XP</div></div></div>`).join('')}
+
+// ══ POMODORO ══
+function ft(s){return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
+function updP(){const tot=pMode*60,c=408.4;document.getElementById('pTime').textContent=ft(pLeft);document.getElementById('pCircle').style.strokeDashoffset=c*(1-pLeft/tot)}
+function pToggle(){if(pRunning){clearInterval(pTimer);pRunning=false;document.getElementById('pBtn').textContent='▶ Resume';}else{pRunning=true;document.getElementById('pBtn').textContent='⏸ Pause';pTimer=setInterval(()=>{pLeft--;updP();if(pLeft<=0){clearInterval(pTimer);pRunning=false;pSessions++;document.getElementById('pCount').textContent=pSessions;save();if(pSessions>=4)unlock('pomo_4');document.getElementById('pBtn').textContent='▶ Start';alert(pMode===25?`Session done 🍅 Take a ${pSessions%4===0?'15':'5'}-min break.`:'Break over!');pLeft=pMode*60;updP();}},1000);}}
+function pReset(){clearInterval(pTimer);pRunning=false;pLeft=pMode*60;updP();document.getElementById('pBtn').textContent='▶ Start'}
+function setPM(mins,label,btn){clearInterval(pTimer);pRunning=false;pMode=mins;pLeft=mins*60;updP();document.getElementById('pLabel').textContent=label;document.getElementById('pBtn').textContent='▶ Start';document.querySelectorAll('#p-pomodoro .tog').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+function setPTask(){const t=document.getElementById('pTask').value.trim();if(!t)return;document.getElementById('pTaskName').textContent=t;document.getElementById('pTaskActive').style.display='block'}
+
+// ══ INIT ══
+buildGPATable();
+renderAll();renderC30();renderWDots();renderAch();updP();
+document.getElementById('pCount').textContent=pSessions;
+document.getElementById('sbComp').textContent='0/100';
+populateGradeCourse();
+const di=document.getElementById('mc-exam');if(di){const d=new Date();d.setDate(d.getDate()+21);di.valueAsDate=d}
+// Pre-load your known courses
+if(!courses.length){
+  const preload=[
+    {id:1001,code:'EC140',name:'Intro to Macroeconomics',examDate:'2026-04-15',hours:1.5,subject:'Economics',examType:'MCQ',topics:'Supply & Demand, Elasticity, GDP, Inflation, Monetary Policy, Fiscal Policy, Aggregate Demand, Market Structures',target:'A',color:'#0d9488',daysLogged:[],quizAvg:null,plan:null,gcalSynced:false},
+    {id:1002,code:'BU127',name:'Financial Accounting',examDate:'2026-04-10',hours:1.5,subject:'Accounting',examType:'Problems',topics:'Debits & Credits, Balance Sheet, Income Statement, Cash Flow Statement, Revenue Recognition, Depreciation, Financial Ratios, Journal Entries',target:'A',color:'#f0b429',daysLogged:[],quizAvg:null,plan:null,gcalSynced:true},
+    {id:1003,code:'BU121',name:'Critical Thinking & Comm Skills',examDate:'2026-04-20',hours:1,subject:'Communications',examType:'Written',topics:'Argumentation, Critical Analysis, Rhetorical Strategies, Business Writing, Presentation Skills, Logical Fallacies',target:'A',color:'#6d28d9',daysLogged:[],quizAvg:null,plan:null,gcalSynced:false},
+    {id:1004,code:'ANTH100',name:'Introduction to Anthropology',examDate:'2026-04-18',hours:1,subject:'Anthropology',examType:'MCQ',topics:'Cultural Anthropology, Ethnography, Kinship Systems, Social Structure, Cultural Relativism, Fieldwork Methods',target:'A',color:'#e11d48',daysLogged:[],quizAvg:null,plan:null,gcalSynced:false},
+  ];
+  courses=[...preload];save();renderAll();
+}
+</script>
+</body>
+</html>
